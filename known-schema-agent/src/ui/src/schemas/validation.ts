@@ -127,9 +127,6 @@ export const ResponsesAgentRequestSchema = z.object({
     .optional(),
 });
 
-export const AgentConfigSchema = z.object({
-  endpoint: z.string().url(),
-});
 
 export const ChatStateSchema = z.object({
   input: z.array(ResponseInputItemSchema),
@@ -163,5 +160,4 @@ export type ResponseOutputTextAnnotationAddedEvent = z.infer<
 >;
 export type ResponsesStreamEvent = z.infer<typeof ResponsesStreamEventSchema>;
 export type ResponsesAgentRequest = z.infer<typeof ResponsesAgentRequestSchema>;
-export type AgentConfig = z.infer<typeof AgentConfigSchema>;
 export type ChatState = z.infer<typeof ChatStateSchema>;

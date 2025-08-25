@@ -1,5 +1,10 @@
 import { useState, type KeyboardEvent } from "react";
-import { Input, StopCircleIcon } from "@databricks/design-system";
+import {
+  Input,
+  StopCircleIcon,
+  SendIcon,
+  Typography,
+} from "@databricks/design-system";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -24,42 +29,37 @@ const MessageInput = ({
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
-
   return (
     <div
       style={{
-        padding: "24px",
-        borderTop: "1px solid #e5e7eb",
-        backgroundColor: "white",
+        padding: "24px 16px 0",
       }}
     >
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-
-        {/* Main Message Input */}
         <div
           style={{
             position: "relative",
-            border: "1px solid #d1d5db",
+            border: "1px solid #e5e7eb",
             borderRadius: "12px",
             backgroundColor: "white",
             overflow: "hidden",
           }}
         >
-          <Input
+          <Input.TextArea
             componentId="message-input"
-            type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={disabled}
             placeholder="Start typing ..."
+            autoSize={{ minRows: 1, maxRows: 4 }}
             style={{
               width: "100%",
               padding: "16px 50px 16px 16px",
@@ -68,12 +68,13 @@ const MessageInput = ({
               fontSize: "15px",
               lineHeight: "1.5",
               backgroundColor: "transparent",
+              resize: "none",
             }}
           />
 
           <button
             onClick={isStreaming ? onStopStreaming : handleSubmit}
-            disabled={isStreaming ? false : (disabled || !message.trim())}
+            disabled={isStreaming ? false : disabled || !message.trim()}
             style={{
               position: "absolute",
               right: "12px",
@@ -101,20 +102,9 @@ const MessageInput = ({
             }}
           >
             {isStreaming ? (
-              <StopCircleIcon width={16} height={16} />
+              <StopCircleIcon size={16} />
             ) : (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-                  fill="currentColor"
-                />
-              </svg>
+              <SendIcon size={16} />
             )}
           </button>
         </div>
@@ -125,16 +115,7 @@ const MessageInput = ({
             textAlign: "center",
           }}
         >
-          <div
-            style={{
-              fontSize: "12px",
-              color: "#9ca3af",
-              fontFamily:
-                "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            }}
-          >
-            Press Enter to send
-          </div>
+          <Typography.Paragraph>Press Enter to send</Typography.Paragraph>
         </div>
       </div>
     </div>

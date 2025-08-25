@@ -28,7 +28,6 @@ const MessageList = ({ messages, isLoading }: MessageListProps) => {
         height: "100%",
         overflowY: "auto",
         padding: "0",
-        backgroundColor: "#ffffff",
       }}
     >
       {messages.length === 0 ? (
@@ -53,7 +52,7 @@ const MessageList = ({ messages, isLoading }: MessageListProps) => {
         </div>
       ) : (
         <div
-          style={{ maxWidth: "800px", margin: "0 auto", padding: "32px 24px" }}
+          style={{ maxWidth: "800px", margin: "0 auto", padding: "32px 24px 120px" }}
         >
           {messages.map((message, index) => (
             <div
