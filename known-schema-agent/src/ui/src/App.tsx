@@ -6,9 +6,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div style={{ height: "100vh", backgroundColor: "#ffffff" }}>
-        <ChatContainer />
-      </div>
+      <ChatContainer />
     </QueryClientProvider>
   );
 }

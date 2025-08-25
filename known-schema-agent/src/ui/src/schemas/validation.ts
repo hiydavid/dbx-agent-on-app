@@ -129,7 +129,6 @@ export const ResponsesAgentRequestSchema = z.object({
 
 export const AgentConfigSchema = z.object({
   endpoint: z.string().url(),
-  systemPrompt: z.string().optional(),
 });
 
 export const ChatStateSchema = z.object({

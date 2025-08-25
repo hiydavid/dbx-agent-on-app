@@ -42,7 +42,7 @@ export const useStreamingChat = (endpoint: string) => {
   }
 
   const sendStreamingMessage = useCallback(
-    async (userMessage: string, systemPrompt?: string) => {
+    async (userMessage: string) => {
       // Cancel any ongoing stream
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -62,15 +62,6 @@ export const useStreamingChat = (endpoint: string) => {
       try {
         const request: ResponsesAgentRequest = {
           input: [
-            ...(systemPrompt
-              ? [
-                  {
-                    type: "message" as const,
-                    role: "system" as const,
-                    content: systemPrompt,
-                  },
-                ]
-              : []),
             ...messages,
             userMessageItem,
           ],
