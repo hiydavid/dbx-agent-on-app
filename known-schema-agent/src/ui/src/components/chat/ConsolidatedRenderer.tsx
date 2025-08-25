@@ -11,7 +11,12 @@ import type {
 import AgentAvatar from "../agents/AgentAvatar";
 import CopyButton from "../common/CopyButton";
 import { formatTimestamp, getTimestampFromId } from "../../utils/time";
-import { Button, CheckIcon, WrenchIcon } from "@databricks/design-system";
+import {
+  Button,
+  CheckIcon,
+  WrenchIcon,
+  Typography,
+} from "@databricks/design-system";
 import ReadOnlyCodeBlock from "../common/ReadOnlyCodeBlock";
 
 // TextRenderer Component
@@ -70,18 +75,19 @@ const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
       };
 
       parts.push(
-        <span
+        <Typography.Paragraph
           key={index}
           style={{
             display: "inline-block",
             padding: "2px 4px",
             borderRadius: "4px",
+            margin: 0,
             ...getAnnotationStyle(),
           }}
           title={annotation.url || annotation.file_id || "Annotation"}
         >
           {annotatedText}
-        </span>
+        </Typography.Paragraph>
       );
 
       lastIndex = annotation.end_index;
@@ -223,7 +229,9 @@ const ToolCallOutputRenderer = ({ output }: ToolCallOutputRendererProps) => {
         }}
       >
         <span style={{ fontSize: "16px" }}>⚡</span>
-        <span>Output</span>
+        <Typography.Paragraph style={{ margin: 0, fontSize: "14px" }}>
+          Output
+        </Typography.Paragraph>
       </div>
 
       {/* Output content */}
@@ -267,9 +275,16 @@ const ReasoningRenderer = ({ reasoning }: ReasoningRendererProps) => {
         }}
       >
         <span style={{ fontSize: "16px", color: "#9333ea" }}>🧠</span>
-        <span style={{ fontWeight: "500", fontSize: "14px", color: "#6b21a8" }}>
+        <Typography.Paragraph
+          style={{
+            margin: 0,
+            fontWeight: "500",
+            fontSize: "14px",
+            color: "#6b21a8",
+          }}
+        >
           Reasoning
-        </span>
+        </Typography.Paragraph>
         {isExpanded ? (
           <span style={{ fontSize: "16px", color: "#9333ea" }}>▼</span>
         ) : (

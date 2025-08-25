@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { ResponseInputItem } from "../../schemas/validation";
 import ResponseRenderer from "./ConsolidatedRenderer";
 import LoadingIndicator from "../common/LoadingIndicator";
+import { Typography } from "@databricks/design-system";
 
 interface MessageListProps {
   messages: ResponseInputItem[];
@@ -40,26 +41,14 @@ const MessageList = ({ messages, isLoading }: MessageListProps) => {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "64px", marginBottom: "16px" }}>💬</div>
-            <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: "500",
-                marginBottom: "8px",
-              }}
-            >
-              Start a conversation
-            </h3>
-            <span
-              style={{
-                fontSize: "14px",
-                color: "#6b7280",
-                fontFamily:
-                  "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-              }}
-            >
-              Send a message to begin chatting with the agent
-            </span>
+            <Typography>
+              <Typography.Title level={3}>
+                Start a conversation
+              </Typography.Title>
+              <Typography.Paragraph>
+                Send a message to begin chatting with the agent
+              </Typography.Paragraph>
+            </Typography>
           </div>
         </div>
       ) : (

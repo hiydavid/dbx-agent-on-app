@@ -9,6 +9,7 @@ import {
   Layout,
   GearIcon,
   ListClearIcon,
+  Typography,
 } from "@databricks/design-system";
 
 const defaultConfig: AgentConfig = {
@@ -128,16 +129,9 @@ const ChatContainer = () => {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <h1
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "600",
-                  margin: 0,
-                  color: "#1f2937",
-                }}
-              >
+              <Typography.Title level={2} withoutMargins>
                 Playground
-              </h1>
+              </Typography.Title>
             </div>
             <div style={{ display: "flex", gap: "16px" }}>
               <Button

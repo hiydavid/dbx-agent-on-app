@@ -6,6 +6,7 @@ import {
   Layout,
   GearIcon,
   ListClearIcon,
+  Typography,
 } from "@databricks/design-system";
 
 interface ConfigPanelProps {
@@ -68,27 +69,12 @@ const ConfigPanel = ({ config, onConfigChange, onClose }: ConfigPanelProps) => {
               <GearIcon size={20} />
             </div>
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  color: "#1e293b",
-                  lineHeight: "1.4",
-                }}
-              >
+              <Typography.Title level={3} withoutMargins>
                 Settings
-              </h2>
-              <p
-                style={{
-                  margin: "4px 0 0 0",
-                  fontSize: "14px",
-                  color: "#64748b",
-                  lineHeight: "1.4",
-                }}
-              >
+              </Typography.Title>
+              <Typography.Paragraph style={{ margin: "4px 0 0 0" }}>
                 Configure your agent connection
-              </p>
+              </Typography.Paragraph>
             </div>
           </div>
           <Button
@@ -136,16 +122,9 @@ const ConfigPanel = ({ config, onConfigChange, onClose }: ConfigPanelProps) => {
                 padding: "12px 16px",
               }}
             />
-            <p
-              style={{
-                fontSize: "13px",
-                marginTop: "8px",
-                color: "#6b7280",
-                lineHeight: "1.4",
-              }}
-            >
+            <Typography.Paragraph style={{ marginTop: "8px" }}>
               The URL of your agent server
-            </p>
+            </Typography.Paragraph>
           </div>
         </div>
       </div>

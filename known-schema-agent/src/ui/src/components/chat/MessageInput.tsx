@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent } from "react";
+import { Input } from "@databricks/design-system";
 
 interface MessageInputProps {
   onSendMessage: (message: string, systemPrompt?: string) => void;
@@ -241,7 +242,8 @@ const MessageInput = ({
             overflow: "hidden",
           }}
         >
-          <input
+          <Input
+            componentId="message-input"
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -253,7 +255,6 @@ const MessageInput = ({
               padding: "16px 50px 16px 16px",
               border: "none",
               outline: "none",
-              fontFamily: "inherit",
               fontSize: "15px",
               lineHeight: "1.5",
               backgroundColor: "transparent",
