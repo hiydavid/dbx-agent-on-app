@@ -8,7 +8,7 @@ A React-based chat interface for interacting with OpenAI Response API compatible
 - **Rich Message Types**: Display messages, tool calls, reasoning, and errors
 - **Agent Avatars**: Color-coded avatars for different agents and users
 - **Configuration Panel**: Configurable endpoint and system prompts
-- **Copy & Timestamps**: Copy messages and view timestamps
+- **Copy**: Copy messages
 - **Responsive Design**: Mobile-friendly interface
 
 ## Setup

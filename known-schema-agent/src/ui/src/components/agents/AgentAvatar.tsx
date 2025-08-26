@@ -28,7 +28,7 @@ const AgentAvatar = ({ role }: AgentAvatarProps) => {
         flexShrink: 0,
       }}
     >
-      {role === "user" ? <UserIcon /> : <SparkleDoubleIcon />}
+      {role === "user" ? <UserIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} /> : <SparkleDoubleIcon onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
     </div>
   );
 };

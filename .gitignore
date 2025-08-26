@@ -197,5 +197,5 @@ sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react
 
-uv.lock
+**/uv.lock
 **/mlruns/

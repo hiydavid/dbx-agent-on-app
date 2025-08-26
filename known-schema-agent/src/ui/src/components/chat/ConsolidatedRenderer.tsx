@@ -8,9 +8,8 @@ import type {
   ResponseReasoningItem,
   ResponseErrorItem,
 } from "../../schemas/validation";
-import AgentAvatar, { AvatarLabel } from "../agents/AgentAvatar";
+import { AvatarLabel } from "../agents/AgentAvatar";
 import CopyButton from "../common/CopyButton";
-import { formatTimestamp, getTimestampFromId } from "../../utils/time";
 import { Button, Typography } from "@databricks/design-system";
 import ReadOnlyCodeBlock from "../common/ReadOnlyCodeBlock";
 
@@ -313,9 +312,6 @@ const MessageRenderer = ({ message }: MessageRendererProps) => {
         content.text.startsWith("User:")
       );
 
-  const timestamp = (message as any).id
-    ? getTimestampFromId((message as any).id)
-    : Date.now();
   const messageText = isInputMessage
     ? (message as any).content
     : (message as ResponseOutputMessage).content.map((c) => c.text).join("\n");
@@ -347,16 +343,6 @@ const MessageRenderer = ({ message }: MessageRendererProps) => {
         )}
       </div>
 
-      {/* Timestamp */}
-      <div
-        style={{
-          fontSize: "12px",
-          marginTop: "12px",
-          color: "#9ca3af",
-        }}
-      >
-        {formatTimestamp(timestamp)}
-      </div>
 
       {/* Copy button */}
       <div
