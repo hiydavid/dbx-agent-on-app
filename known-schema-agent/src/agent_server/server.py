@@ -62,10 +62,10 @@ class AgentServer:
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=[
+                "http://localhost:8000",
+                "http://127.0.0.1:8000",
                 "http://localhost:5173",
-                "http://localhost:5174",
                 "http://127.0.0.1:5173",
-                "http://127.0.0.1:5174",
             ],
             allow_credentials=True,
             allow_methods=["*"],
@@ -266,7 +266,7 @@ class AgentServer:
 
         return StreamingResponse(generate(), media_type="text/event-stream")
 
-    def run(self, host: str = "0.0.0.0", port: int = 8000):
+    def run(self, host: str = "0.0.0.0", port: int = 8001):
         import uvicorn
 
         uvicorn.run(self.app, host=host, port=port)

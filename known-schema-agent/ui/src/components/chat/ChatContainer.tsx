@@ -15,7 +15,7 @@ const ChatContainer = () => {
     sendStreamingMessage,
     stopStreaming,
     clearMessages,
-  } = useStreamingChat("http://0.0.0.0:8000");
+  } = useStreamingChat("http://0.0.0.0:8001");
 
   const handleSendMessage = async (content: string) => {
     await sendStreamingMessage(content);

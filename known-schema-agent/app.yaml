@@ -1,1 +1,1 @@
-command: ["uv", "run", "agent-server"]
+command: ["sh", "-c", "uv run agent-server & cd src/ui && npm run dev"]

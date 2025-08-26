@@ -25,11 +25,11 @@ A React-based chat interface for interacting with OpenAI Response API compatible
    npm run dev
    ```
 
-3. **Open browser**: Navigate to `http://localhost:5173`
+3. **Open browser**: Navigate to `http://localhost:8000`
 
 ## Configuration
 
-- **Default Endpoint**: `http://0.0.0.0:8000`
+- **Default Endpoint**: `http://0.0.0.0:8001`
 - **System Prompt**: Configurable via the Config panel
 - **Streaming**: Enabled by default
 
