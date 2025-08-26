@@ -3,15 +3,13 @@ import { Typography } from "@databricks/design-system";
 
 interface ReadOnlyCodeBlockProps {
   code: string;
-  language?: string;
-  title?: string;
+  title: string;
   showLanguageHeader?: boolean;
   style?: React.CSSProperties;
 }
 
 const ReadOnlyCodeBlock: React.FC<ReadOnlyCodeBlockProps> = ({
   code,
-  language = "text",
   title,
   showLanguageHeader = true,
   style,
@@ -42,13 +40,8 @@ const ReadOnlyCodeBlock: React.FC<ReadOnlyCodeBlockProps> = ({
           }}
         >
           <Typography.Paragraph style={{ margin: 0, fontSize: "12px" }}>
-            {language}
+            {title}
           </Typography.Paragraph>
-          {title && (
-            <Typography.Paragraph style={{ margin: 0, fontSize: "11px", opacity: 0.8 }}>
-              {title}
-            </Typography.Paragraph>
-          )}
         </div>
       )}
 

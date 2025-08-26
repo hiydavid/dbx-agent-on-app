@@ -8,15 +8,10 @@ import type {
   ResponseReasoningItem,
   ResponseErrorItem,
 } from "../../schemas/validation";
-import AgentAvatar from "../agents/AgentAvatar";
+import AgentAvatar, { AvatarLabel } from "../agents/AgentAvatar";
 import CopyButton from "../common/CopyButton";
 import { formatTimestamp, getTimestampFromId } from "../../utils/time";
-import {
-  Button,
-  CheckIcon,
-  WrenchIcon,
-  Typography,
-} from "@databricks/design-system";
+import { Button, Typography } from "@databricks/design-system";
 import ReadOnlyCodeBlock from "../common/ReadOnlyCodeBlock";
 
 // TextRenderer Component
@@ -101,14 +96,6 @@ const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
     return parts;
   };
 
-  // Clean up the text to remove role prefixes for display
-  let displayText = content.text;
-  if (displayText.startsWith("User: ")) {
-    displayText = displayText.slice(6);
-  } else if (displayText.startsWith("Assistant: ")) {
-    displayText = displayText.slice(11);
-  }
-
   return (
     <div
       style={{
@@ -120,7 +107,7 @@ const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
         fontWeight: "400",
       }}
     >
-      {renderTextWithAnnotations(displayText)}
+      {renderTextWithAnnotations(content.text)}
     </div>
   );
 };
@@ -131,19 +118,6 @@ interface ToolCallRendererProps {
 }
 
 const ToolCallRenderer = ({ toolCall }: ToolCallRendererProps) => {
-  const getStatusIcon = () => {
-    switch (toolCall.status) {
-      case "pending":
-        return <WrenchIcon width={16} height={16} color="warning" />;
-      case "completed":
-        return <CheckIcon width={16} height={16} color="success" />;
-      case "failed":
-        return <span style={{ color: "#ef4444", fontSize: "16px" }}>✗</span>;
-      default:
-        return <WrenchIcon width={16} height={16} color="warning" />;
-    }
-  };
-
   return (
     <div
       style={{
@@ -151,42 +125,6 @@ const ToolCallRenderer = ({ toolCall }: ToolCallRendererProps) => {
         padding: "0",
       }}
     >
-      {/* Tool call header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          marginBottom: "12px",
-          fontSize: "14px",
-          color: "#6b7280",
-        }}
-      >
-        {getStatusIcon()}
-        <span
-          style={{
-            fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', monospace",
-          }}
-        >
-          system.ai.{toolCall.name}
-        </span>
-        {toolCall.status && (
-          <span
-            style={{
-              fontSize: "12px",
-              padding: "2px 6px",
-              borderRadius: "3px",
-              backgroundColor: "#f3f4f6",
-              color: "#6b7280",
-              textTransform: "capitalize",
-            }}
-          >
-            {toolCall.status}
-          </span>
-        )}
-      </div>
-
-      {/* Code block */}
       <ReadOnlyCodeBlock
         code={(() => {
           try {
@@ -198,7 +136,6 @@ const ToolCallRenderer = ({ toolCall }: ToolCallRendererProps) => {
             return toolCall.arguments;
           }
         })()}
-        language="Python"
         title={`system.ai.${toolCall.name}`}
       />
     </div>
@@ -212,34 +149,8 @@ interface ToolCallOutputRendererProps {
 
 const ToolCallOutputRenderer = ({ output }: ToolCallOutputRendererProps) => {
   return (
-    <div
-      style={{
-        marginBottom: "16px",
-      }}
-    >
-      {/* Output header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          marginBottom: "12px",
-          fontSize: "14px",
-          color: "#6b7280",
-        }}
-      >
-        <span style={{ fontSize: "16px" }}>⚡</span>
-        <Typography.Paragraph style={{ margin: 0, fontSize: "14px" }}>
-          Output
-        </Typography.Paragraph>
-      </div>
-
-      {/* Output content */}
-      <ReadOnlyCodeBlock
-        code={output.output}
-        language="Output"
-        title="Tool Result"
-      />
+    <div style={{ marginBottom: "8px" }}>
+      <ReadOnlyCodeBlock code={output.output} title="Output" />
     </div>
   );
 };
@@ -299,7 +210,7 @@ const ReasoningRenderer = ({ reasoning }: ReasoningRendererProps) => {
           <div style={{ marginTop: "8px" }}>
             <ReadOnlyCodeBlock
               code={reasoning.content}
-              language="Reasoning"
+              title="Reasoning"
               showLanguageHeader={false}
               style={{
                 fontSize: "12px",
@@ -412,79 +323,53 @@ const MessageRenderer = ({ message }: MessageRendererProps) => {
   return (
     <div
       style={{
-        display: "flex",
-        gap: "16px",
         marginBottom: "24px",
         position: "relative",
       }}
     >
-      <div style={{ flexShrink: 0 }}>
-        <AgentAvatar
-          role={isUser ? "user" : "assistant"}
-          agentId={(message as any).id || "unknown"}
-          size="md"
-        />
-      </div>
+      {/* Avatar and role label */}
+      <AvatarLabel role={isUser ? "user" : "assistant"} />
 
+      {/* Message content */}
       <div
         style={{
-          flex: 1,
-          minWidth: 0,
+          fontSize: "15px",
+          lineHeight: "1.6",
+          color: "#111827",
         }}
       >
-        {/* Role label */}
-        <div
-          style={{
-            fontSize: "14px",
-            fontWeight: "600",
-            color: "#374151",
-            marginBottom: "8px",
-          }}
-        >
-          {isUser ? "You" : "Agent"}
-        </div>
+        {isInputMessage ? (
+          <div>{messageText}</div>
+        ) : (
+          (message as ResponseOutputMessage).content.map((content, index) => (
+            <TextRenderer key={index} content={content} isUser={false} />
+          ))
+        )}
+      </div>
 
-        {/* Message content */}
-        <div
-          style={{
-            fontSize: "15px",
-            lineHeight: "1.6",
-            color: "#111827",
-          }}
-        >
-          {isInputMessage ? (
-            <div>{messageText}</div>
-          ) : (
-            (message as ResponseOutputMessage).content.map((content, index) => (
-              <TextRenderer key={index} content={content} isUser={false} />
-            ))
-          )}
-        </div>
+      {/* Timestamp */}
+      <div
+        style={{
+          fontSize: "12px",
+          marginTop: "12px",
+          color: "#9ca3af",
+        }}
+      >
+        {formatTimestamp(timestamp)}
+      </div>
 
-        {/* Timestamp */}
-        <div
-          style={{
-            fontSize: "12px",
-            marginTop: "12px",
-            color: "#9ca3af",
-          }}
-        >
-          {formatTimestamp(timestamp)}
-        </div>
-
-        {/* Copy button */}
-        <div
-          style={{
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-            opacity: 0,
-            transition: "opacity 0.2s",
-          }}
-          className="group-hover:opacity-100"
-        >
-          <CopyButton text={messageText} />
-        </div>
+      {/* Copy button */}
+      <div
+        style={{
+          position: "absolute",
+          top: "8px",
+          right: "8px",
+          opacity: 0,
+          transition: "opacity 0.2s",
+        }}
+        className="group-hover:opacity-100"
+      >
+        <CopyButton text={messageText} />
       </div>
     </div>
   );

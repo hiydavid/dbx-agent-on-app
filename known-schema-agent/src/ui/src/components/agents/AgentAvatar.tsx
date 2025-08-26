@@ -6,54 +6,21 @@ interface AgentAvatarProps {
   size?: "sm" | "md" | "lg";
 }
 
-const AgentAvatar = ({ role, agentId, size = "md" }: AgentAvatarProps) => {
-  // Generate consistent colors based on agent ID
-  const getAvatarColor = (id?: string) => {
-    if (!id || role === "user") {
-      return role === "user" ? "#3b82f6" : "#10b981";
-    }
-
-    // Simple hash function for consistent colors
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = ((hash << 5) - hash + id.charCodeAt(i)) & 0xffffffff;
-    }
-
-    const colors = [
-      "#8b5cf6",
-      "#ec4899",
-      "#6366f1",
-      "#14b8a6",
-      "#f97316",
-      "#ef4444",
-      "#eab308",
-      "#10b981",
-    ];
-
-    return colors[Math.abs(hash) % colors.length];
+const AgentAvatar = ({ role }: AgentAvatarProps) => {
+  // Simple color scheme: light blue for user, light green for others
+  const getAvatarColor = () => {
+    return role === "user" ? "#93c5fd" : "#86efac";
   };
 
-  const getSize = () => {
-    switch (size) {
-      case "sm":
-        return 24;
-      case "lg":
-        return 48;
-      default:
-        return 32;
-    }
-  };
-
-  const color = getAvatarColor(agentId);
-  const sizePx = getSize();
+  const color = getAvatarColor();
 
   return (
     <div
       style={{
-        width: sizePx,
-        height: sizePx,
+        width: "24px",
+        height: "24px",
         backgroundColor: color,
-        borderRadius: "50%",
+        borderRadius: "4px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -66,4 +33,32 @@ const AgentAvatar = ({ role, agentId, size = "md" }: AgentAvatarProps) => {
   );
 };
 
+interface AvatarLabelProps {
+  role: "user" | "assistant";
+}
+
+const AvatarLabel = ({ role }: AvatarLabelProps) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        marginBottom: "12px",
+      }}
+    >
+      <AgentAvatar role={role} />
+      <div
+        style={{
+          fontSize: "16px",
+          color: "#1f2937",
+        }}
+      >
+        {role === "user" ? "You" : "Agent"}
+      </div>
+    </div>
+  );
+};
+
 export default AgentAvatar;
+export { AvatarLabel };
