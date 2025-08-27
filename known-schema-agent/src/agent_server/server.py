@@ -80,8 +80,8 @@ class AgentServer:
 
     def _setup_static_files(self):
         """Setup static file serving for the UI"""
-        # Get the path to the UI dist folder relative to the server location
-        ui_dist_path = Path(__file__).parent.parent.parent / "ui" / "dist"
+        # Get the path to the UI build folder relative to the server location
+        ui_dist_path = Path(__file__).parent.parent.parent / "ui/static"
         
         if ui_dist_path.exists():
             # Mount the static assets

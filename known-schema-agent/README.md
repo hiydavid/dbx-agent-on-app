@@ -27,15 +27,19 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    pip install -r requirements.txt
    ```
 
-2. **Build the UI:**
+2. **Install UI dependencies:**
    ```bash
    cd ui
    npm install
-   npm run build
    cd ..
    ```
 
-3. **Run the combined server:**
+3. **Build the UI for production:**
+   ```bash
+   npm run build
+   ```
+
+4. **Run the combined server:**
    ```bash
    python src/agent_server/agent.py
    ```
@@ -45,7 +49,7 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    - **API**: http://localhost:8000/invocations
    - **Health**: http://localhost:8000/health
 
-4. **Make API requests:**
+5. **Make API requests:**
    ```bash
    # Non-streaming
    curl -X POST http://localhost:8000/invocations \
@@ -128,7 +132,7 @@ known-schema-agent/
 │   └── mlflow_config.py      # MLflow setup
 ├── ui/                       # React frontend
 │   ├── src/components/       # React components
-│   ├── dist/                 # Built static files
+│   ├── static/               # Built static files (generated)
 │   └── package.json          # Frontend dependencies
 ├── requirements.txt          # Python dependencies
 └── README.md                # This file
@@ -138,8 +142,32 @@ known-schema-agent/
 
 The application is designed for single-port deployment where the FastAPI server serves both the API endpoints and the React UI as static files. This simplifies deployment and eliminates CORS issues.
 
+### ⚠️ Required Before Deployment
+
+**You MUST run the build step before deploying to Databricks Apps:**
+
+```bash
+npm run build
+```
+
+This builds the React UI into static files that the server can serve.
+
+### Deployment to Databricks Apps
+
+1. **Build the UI (REQUIRED):**
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy using Databricks CLI:**
+   ```bash
+   databricks apps deploy
+   ```
+
+The `app.yaml` file is configured to automatically run the build step during deployment.
+
 ### Production Checklist
-1. Build the UI: `cd ui && npm run build`
-2. Ensure Python dependencies are installed
-3. Run the server: `python src/agent_server/agent.py`
-4. Access the application at `http://localhost:8000`
+1. ✅ **Build the UI**: `npm run build` (REQUIRED)
+2. ✅ **Ensure Python dependencies are installed**
+3. ✅ **Run the server**: `python src/agent_server/agent.py`
+4. ✅ **Access the application at the deployed URL**

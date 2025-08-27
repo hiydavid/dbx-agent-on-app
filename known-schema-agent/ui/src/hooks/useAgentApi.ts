@@ -8,11 +8,11 @@ import type {
   ResponseErrorItem,
 } from "../schemas/validation";
 
-export const useAgentApi = (endpoint: string) => {
+export const useAgentApi = (endpoint?: string) => {
   const clientRef = useRef(new AgentApiClient(endpoint));
 
   // Update client when endpoint changes
-  if (clientRef.current) {
+  if (clientRef.current && endpoint) {
     clientRef.current.updateBaseUrl(endpoint);
   }
 
@@ -30,14 +30,14 @@ export const useAgentApi = (endpoint: string) => {
   };
 };
 
-export const useStreamingChat = (endpoint: string) => {
+export const useStreamingChat = (endpoint?: string) => {
   const [messages, setMessages] = useState<ResponseInputItem[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const clientRef = useRef(new AgentApiClient(endpoint));
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Update client when endpoint changes
-  if (clientRef.current) {
+  if (clientRef.current && endpoint) {
     clientRef.current.updateBaseUrl(endpoint);
   }
 
@@ -61,10 +61,7 @@ export const useStreamingChat = (endpoint: string) => {
 
       try {
         const request: ResponsesAgentRequest = {
-          input: [
-            ...messages,
-            userMessageItem,
-          ],
+          input: [...messages, userMessageItem],
           stream: true,
         };
 
@@ -73,8 +70,10 @@ export const useStreamingChat = (endpoint: string) => {
 
         for await (const chunk of streamGenerator) {
           if (abortController.signal.aborted) {
+            console.log("abortController.signal.aborted");
             break;
           }
+          console.log("chunk", chunk);
 
           // TODO: handle parsing the chunk?
           // need a separate internal state + state that is used for rendering?
