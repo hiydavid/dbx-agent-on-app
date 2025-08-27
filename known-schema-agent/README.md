@@ -5,6 +5,7 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 ## Features
 
 ### Backend
+
 - **Single `/invocations` endpoint** that routes based on `stream` parameter
 - **MLflow agent type validation** for `agent/v1/responses`
 - **Automatic MLflow tracing** for all requests and responses
@@ -13,6 +14,7 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 - **Unified port 8000** for both API and UI
 
 ### Frontend
+
 - **Real-time streaming** chat interface
 - **Custom Typography system** matching design standards
 - **Rich message rendering** (text, tool calls, reasoning)
@@ -22,12 +24,14 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 ## Quick Start
 
 1. **Install Python dependencies:**
+
    ```bash
    source ~/mlflow/ml3.10/bin/activate  # Use your Python environment
    pip install -r requirements.txt
    ```
 
 2. **Install UI dependencies:**
+
    ```bash
    cd ui
    npm install
@@ -35,21 +39,25 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    ```
 
 3. **Build the UI for production:**
+
    ```bash
    npm run build
    ```
 
 4. **Run the combined server:**
+
    ```bash
    python src/agent_server/agent.py
    ```
-   
+
    The server runs on **port 8000** and serves:
+
    - **UI**: http://localhost:8000 (React app)
    - **API**: http://localhost:8000/invocations
    - **Health**: http://localhost:8000/health
 
 5. **Make API requests:**
+
    ```bash
    # Non-streaming
    curl -X POST http://localhost:8000/invocations \
@@ -64,13 +72,13 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
        ]
      }'
 
-   # Streaming  
+   # Streaming
    curl -X POST http://localhost:8000/invocations \
      -H "Content-Type: application/json" \
      -d '{
        "input": [
          {
-           "type": "message", 
+           "type": "message",
            "role": "user",
            "content": [{"type": "text", "text": "what is 4*3 in python?"}]
          }
@@ -82,17 +90,20 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 ## Architecture
 
 ### Backend (`src/agent_server/`)
+
 - **`agent.py`**: Main agent implementation with tool calling
 - **`server.py`**: FastAPI server with static file serving
 - **`mlflow_config.py`**: MLflow configuration and setup
 
 ### Frontend (`ui/`)
+
 - **React + TypeScript** with Vite build system
 - **Custom Typography components** for consistent styling
 - **Real-time streaming** via Server-Sent Events
 - **Responsive design** with clean UI patterns
 
 ### Key Features
+
 - **Unified serving**: Single port (8000) for both API and UI
 - **Static file routing**: React app served at `/`, API at `/invocations`
 - **Tool integration**: Unity Catalog function support
@@ -100,16 +111,8 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
 ## Development
 
-### Backend Development
-```bash
-# Activate Python environment
-source ~/mlflow/ml3.10/bin/activate
-
-# Run with auto-reload during development
-python src/agent_server/agent.py
-```
-
 ### Frontend Development
+
 ```bash
 cd ui
 
@@ -124,6 +127,7 @@ npm run build
 ```
 
 ### File Structure
+
 ```
 known-schema-agent/
 ├── src/agent_server/          # Python backend
@@ -142,24 +146,16 @@ known-schema-agent/
 
 The application is designed for single-port deployment where the FastAPI server serves both the API endpoints and the React UI as static files. This simplifies deployment and eliminates CORS issues.
 
-### ⚠️ Required Before Deployment
-
-**You MUST run the build step before deploying to Databricks Apps:**
-
-```bash
-npm run build
-```
-
-This builds the React UI into static files that the server can serve.
-
 ### Deployment to Databricks Apps
 
 1. **Build the UI (REQUIRED):**
+
    ```bash
    (cd ui && npm run build)
    ```
 
 2. **Get your Databricks username and sync files:**
+
    ```bash
    DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
    databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
@@ -169,9 +165,3 @@ This builds the React UI into static files that the server can serve.
    ```bash
    databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto
    ```
-
-### Production Checklist
-1. ✅ **Build the UI**: `(cd ui && npm run build)` (REQUIRED)
-2. ✅ **Sync to Databricks workspace**: `databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"`
-3. ✅ **Deploy the app**: `databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto`
-4. ✅ **Access the application at the deployed URL**
