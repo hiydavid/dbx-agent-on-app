@@ -1,1 +1,1 @@
-command: ["sh", "-c", "uv run agent-server & cd ui && npm run dev"]
+command: ["sh", "-c", "(cd ui && npm run build) && uv run agent-server"]
