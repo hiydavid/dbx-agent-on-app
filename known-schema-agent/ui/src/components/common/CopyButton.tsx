@@ -18,7 +18,7 @@ const CopyButton = ({ text }: CopyButtonProps) => {
       onClick={handleCopy}
       size="small"
       componentId="copy-button"
-      icon={<CopyIcon size={14} />}
+      icon={<CopyIcon size={14} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
       title="Copy to clipboard"
       style={{ padding: "4px" }}
     />

@@ -10,8 +10,9 @@ import type {
 } from "../../schemas/validation";
 import { AvatarLabel } from "../agents/AgentAvatar";
 import CopyButton from "../common/CopyButton";
-import { Button, Typography } from "@databricks/design-system";
+import { Button } from "@databricks/design-system";
 import ReadOnlyCodeBlock from "../common/ReadOnlyCodeBlock";
+import { Paragraph } from "../common/Typography";
 
 // TextRenderer Component
 interface TextRendererProps {
@@ -69,7 +70,7 @@ const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
       };
 
       parts.push(
-        <Typography.Paragraph
+        <span
           key={index}
           style={{
             display: "inline-block",
@@ -81,7 +82,7 @@ const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
           title={annotation.url || annotation.file_id || "Annotation"}
         >
           {annotatedText}
-        </Typography.Paragraph>
+        </span>
       );
 
       lastIndex = annotation.end_index;
@@ -185,16 +186,9 @@ const ReasoningRenderer = ({ reasoning }: ReasoningRendererProps) => {
         }}
       >
         <span style={{ fontSize: "16px", color: "#9333ea" }}>🧠</span>
-        <Typography.Paragraph
-          style={{
-            margin: 0,
-            fontWeight: "500",
-            fontSize: "14px",
-            color: "#6b21a8",
-          }}
-        >
+        <Paragraph weight="medium" color="#6b21a8">
           Reasoning
-        </Typography.Paragraph>
+        </Paragraph>
         {isExpanded ? (
           <span style={{ fontSize: "16px", color: "#9333ea" }}>▼</span>
         ) : (
