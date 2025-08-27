@@ -11,7 +11,7 @@ import { createParser, type EventSourceMessage } from "eventsource-parser";
 
 // Extend the parser type to include our custom property
 interface ExtendedParser {
-  lastItem?: ResponseOutputItem | null;
+  itemQueue: ResponseOutputItem[];
   feed(chunk: string): void;
   reset(): void;
 }
@@ -19,8 +19,17 @@ interface ExtendedParser {
 export class AgentApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = "http://0.0.0.0:8001") {
-    this.baseUrl = baseUrl.replace(/\/$/, ""); // Remove trailing slash
+  constructor(baseUrl?: string) {
+    // Use same origin when deployed, fallback to localhost for development
+    if (baseUrl) {
+      this.baseUrl = baseUrl.replace(/\/$/, "");
+    } else if (typeof window !== 'undefined') {
+      // Use the same origin as the current page (works for both HTTP and HTTPS)
+      this.baseUrl = window.location.origin;
+    } else {
+      // Fallback for development/SSR
+      this.baseUrl = "http://localhost:8000";
+    }
   }
 
   updateBaseUrl(baseUrl: string) {
@@ -92,28 +101,45 @@ export class AgentApiClient {
             throw new Error(data.error.message || "Stream error");
           }
 
+          console.log("data", data);
+
           if (data) {
             // Validate the chunk
             try {
               const validatedChunk = ResponsesStreamEventSchema.parse(data);
+              console.log("validatedChunk", validatedChunk);
               if (
                 validatedChunk.type === "response.output_item.done" &&
                 validatedChunk.item
               ) {
                 // Store the item to be yielded
-                (parser as ExtendedParser).lastItem =
-                  validatedChunk.item as ResponseOutputItem;
+                console.log(
+                  "✅ Storing item for yielding:",
+                  validatedChunk.item
+                );
+                (parser as ExtendedParser).itemQueue.push(
+                  validatedChunk.item as ResponseOutputItem
+                );
               } else if (validatedChunk.type === "error") {
                 // Store the error item to be yielded
-                (parser as ExtendedParser).lastItem =
-                  validatedChunk as ResponseOutputItem;
+                console.log("❌ Storing error for yielding:", validatedChunk);
+                (parser as ExtendedParser).itemQueue.push(
+                  validatedChunk as ResponseOutputItem
+                );
+              } else {
+                console.log(
+                  "⏭️ Skipping chunk (not done/error):",
+                  validatedChunk.type
+                );
               }
             } catch (validationError) {
               console.warn("Chunk validation failed:", validationError);
               // Store anyway for development
               if (data.item) {
-                (parser as ExtendedParser).lastItem =
-                  data.item as ResponseOutputItem;
+                console.log("⚠️ Storing unvalidated item:", data.item);
+                (parser as ExtendedParser).itemQueue.push(
+                  data.item as ResponseOutputItem
+                );
               }
             }
           }
@@ -126,6 +152,9 @@ export class AgentApiClient {
       },
     }) as ExtendedParser;
 
+    // Initialize the item queue
+    (parser as ExtendedParser).itemQueue = [];
+
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -135,10 +164,13 @@ export class AgentApiClient {
         const chunk = decoder.decode(value, { stream: true });
         parser.feed(chunk);
 
-        // Check if we have an item to yield
-        if (parser.lastItem) {
-          yield parser.lastItem;
-          parser.lastItem = null;
+        // Yield all queued items
+        while (parser.itemQueue.length > 0) {
+          const item = parser.itemQueue.shift();
+          if (item) {
+            console.log("🚀 YIELDING ITEM:", item);
+            yield item;
+          }
         }
       }
     } finally {

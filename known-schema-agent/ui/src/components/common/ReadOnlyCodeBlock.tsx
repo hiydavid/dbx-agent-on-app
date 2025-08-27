@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "@databricks/design-system";
+import { Body } from "./Typography";
 
 interface ReadOnlyCodeBlockProps {
   code: string;
@@ -39,9 +39,7 @@ const ReadOnlyCodeBlock: React.FC<ReadOnlyCodeBlockProps> = ({
             alignItems: "center",
           }}
         >
-          <Typography.Paragraph style={{ margin: 0, fontSize: "12px" }}>
-            {title}
-          </Typography.Paragraph>
+          <Body size="small">{title}</Body>
         </div>
       )}
 

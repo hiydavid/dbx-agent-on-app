@@ -1,12 +1,8 @@
 import { useStreamingChat } from "../../hooks/useAgentApi";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import {
-  Button,
-  ListClearIcon,
-  Header,
-  PageWrapper,
-} from "@databricks/design-system";
+import { Button, ListClearIcon } from "@databricks/design-system";
+import { Title } from "../common/Typography";
 
 const ChatContainer = () => {
   const {
@@ -15,7 +11,7 @@ const ChatContainer = () => {
     sendStreamingMessage,
     stopStreaming,
     clearMessages,
-  } = useStreamingChat("http://0.0.0.0:8001");
+  } = useStreamingChat(); // Will auto-detect the correct URL
 
   const handleSendMessage = async (content: string) => {
     await sendStreamingMessage(content);
@@ -27,21 +23,35 @@ const ChatContainer = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <Header
-        title="Playground"
-        buttons={[
-          <Button
-            key="clear"
-            onClick={handleClearChat}
-            size="small"
-            componentId="clear-chat-button"
-            icon={<ListClearIcon size={16} />}
-          />,
-        ]}
-        style={{
-          padding: "16px 16px 0",
+      <div 
+        style={{ 
+          padding: "16px", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          borderBottom: "1px solid #e5e7eb"
         }}
-      />
+      >
+        <Title>Playground</Title>
+        <Button
+          onClick={handleClearChat}
+          size="small"
+          componentId="clear-chat-button"
+          style={{
+            border: "1px solid #d1d5db",
+            borderRadius: "6px",
+            padding: "8px",
+            minWidth: "auto",
+          }}
+          icon={
+            <ListClearIcon
+              size={16}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+            />
+          }
+        />
+      </div>
       <div style={{ flex: 1, overflow: "hidden" }}>
         <MessageList messages={messages} isLoading={isStreaming} />
       </div>

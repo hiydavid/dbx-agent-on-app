@@ -3,6 +3,7 @@ import json
 import logging
 import time
 from dataclasses import asdict, is_dataclass
+from pathlib import Path
 from typing import Any, Callable, Literal, Optional, Type
 
 import mlflow
@@ -10,6 +11,7 @@ import mlflow.tracing
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from mlflow.pyfunc import ResponsesAgent
 from mlflow.tracing.trace_manager import InMemoryTraceManager
 from mlflow.types.responses import (
@@ -62,10 +64,10 @@ class AgentServer:
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=[
+                "http://localhost:3001",
+                "http://127.0.0.1:3001",
                 "http://localhost:8000",
                 "http://127.0.0.1:8000",
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
             ],
             allow_credentials=True,
             allow_methods=["*"],
@@ -73,7 +75,31 @@ class AgentServer:
         )
 
         self.logger = logging.getLogger(__name__)
+        self._setup_static_files()
         self._setup_routes()
+
+    def _setup_static_files(self):
+        """Setup static file serving for the UI"""
+        # Get the path to the UI build folder relative to the server location
+        ui_dist_path = Path(__file__).parent.parent.parent / "ui/static"
+        
+        if ui_dist_path.exists():
+            # Mount the static assets
+            self.app.mount("/assets", StaticFiles(directory=str(ui_dist_path / "assets")), name="assets")
+            
+            # Serve the main index.html at root and catch-all routes for React Router
+            from fastapi.responses import FileResponse
+            
+            @self.app.get("/")
+            async def serve_ui():
+                return FileResponse(str(ui_dist_path / "index.html"))
+                
+            # Serve vite.svg and other root-level static files
+            @self.app.get("/vite.svg")
+            async def serve_vite_svg():
+                return FileResponse(str(ui_dist_path / "vite.svg"))
+        else:
+            self.logger.warning(f"UI dist folder not found at {ui_dist_path}. UI will not be served.")
 
     @staticmethod
     def _get_databricks_output(trace_id: str) -> dict:
@@ -266,7 +292,7 @@ class AgentServer:
 
         return StreamingResponse(generate(), media_type="text/event-stream")
 
-    def run(self, host: str = "0.0.0.0", port: int = 8001):
+    def run(self, host: str = "0.0.0.0", port: int = 8000):
         import uvicorn
 
         uvicorn.run(self.app, host=host, port=port)

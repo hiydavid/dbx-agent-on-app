@@ -1,10 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
-import {
-  Input,
-  StopCircleIcon,
-  SendIcon,
-  Typography,
-} from "@databricks/design-system";
+import { Input, StopCircleIcon, SendIcon } from "@databricks/design-system";
+import { Body } from "../common/Typography";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -39,7 +35,7 @@ const MessageInput = ({
   return (
     <div
       style={{
-        padding: "24px 16px 0",
+        padding: "24px 16px 16px",
       }}
     >
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -65,10 +61,13 @@ const MessageInput = ({
               padding: "16px 50px 16px 16px",
               border: "none",
               outline: "none",
-              fontSize: "15px",
-              lineHeight: "1.5",
               backgroundColor: "transparent",
               resize: "none",
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              fontSize: "14px",
+              fontWeight: "400",
+              lineHeight: 1.5,
+              color: "#374151",
             }}
           />
 
@@ -102,9 +101,17 @@ const MessageInput = ({
             }}
           >
             {isStreaming ? (
-              <StopCircleIcon size={16} />
+              <StopCircleIcon
+                size={16}
+                onPointerEnterCapture={undefined}
+                onPointerLeaveCapture={undefined}
+              />
             ) : (
-              <SendIcon size={16} />
+              <SendIcon
+                size={16}
+                onPointerEnterCapture={undefined}
+                onPointerLeaveCapture={undefined}
+              />
             )}
           </button>
         </div>
@@ -115,7 +122,7 @@ const MessageInput = ({
             textAlign: "center",
           }}
         >
-          <Typography.Paragraph>Press Enter to send</Typography.Paragraph>
+          <Body size="small">Press Enter to send</Body>
         </div>
       </div>
     </div>

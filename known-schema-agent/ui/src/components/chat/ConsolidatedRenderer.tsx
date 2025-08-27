@@ -2,7 +2,7 @@ import { useState } from "react";
 import type {
   ResponseOutputMessage,
   ResponseInputItem,
-  ResponseOutputText,
+  ResponseInputMessage,
   ResponseToolCall,
   ResponseToolCallOutput,
   ResponseReasoningItem,
@@ -10,105 +10,13 @@ import type {
 } from "../../schemas/validation";
 import { AvatarLabel } from "../agents/AgentAvatar";
 import CopyButton from "../common/CopyButton";
-import { Button, Typography } from "@databricks/design-system";
+import { Button } from "@databricks/design-system";
 import ReadOnlyCodeBlock from "../common/ReadOnlyCodeBlock";
+import { Paragraph, Body } from "../common/Typography";
 
 // TextRenderer Component
-interface TextRendererProps {
-  content: ResponseOutputText;
-  isUser?: boolean;
-}
-
-const TextRenderer = ({ content, isUser = false }: TextRendererProps) => {
-  const renderTextWithAnnotations = (text: string) => {
-    if (!content.annotations || content.annotations.length === 0) {
-      return text;
-    }
-
-    // Sort annotations by start index
-    const sortedAnnotations = [...content.annotations].sort(
-      (a, b) => a.start_index - b.start_index
-    );
-
-    const parts = [];
-    let lastIndex = 0;
-
-    sortedAnnotations.forEach((annotation, index) => {
-      // Add text before annotation
-      if (annotation.start_index > lastIndex) {
-        parts.push(text.slice(lastIndex, annotation.start_index));
-      }
-
-      // Add annotated text
-      const annotatedText = text.slice(
-        annotation.start_index,
-        annotation.end_index
-      );
-
-      const getAnnotationStyle = () => {
-        switch (annotation.type) {
-          case "file_citation":
-            return {
-              backgroundColor: "#dbeafe",
-              color: "#1e40af",
-              border: "1px solid #93c5fd",
-            };
-          case "url_citation":
-            return {
-              backgroundColor: "#dcfce7",
-              color: "#166534",
-              border: "1px solid #86efac",
-            };
-          default:
-            return {
-              backgroundColor: "#f3e8ff",
-              color: "#7c3aed",
-              border: "1px solid #c4b5fd",
-            };
-        }
-      };
-
-      parts.push(
-        <Typography.Paragraph
-          key={index}
-          style={{
-            display: "inline-block",
-            padding: "2px 4px",
-            borderRadius: "4px",
-            margin: 0,
-            ...getAnnotationStyle(),
-          }}
-          title={annotation.url || annotation.file_id || "Annotation"}
-        >
-          {annotatedText}
-        </Typography.Paragraph>
-      );
-
-      lastIndex = annotation.end_index;
-    });
-
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex));
-    }
-
-    return parts;
-  };
-
-  return (
-    <div
-      style={{
-        fontSize: "14px",
-        lineHeight: "1.5",
-        color: isUser ? "white" : "#111827",
-        fontFamily:
-          "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        fontWeight: "400",
-      }}
-    >
-      {renderTextWithAnnotations(content.text)}
-    </div>
-  );
+const TextRenderer = ({ text }: { text: string }) => {
+  return <Body color="inherit">{text}</Body>;
 };
 
 // ToolCallRenderer Component
@@ -185,16 +93,9 @@ const ReasoningRenderer = ({ reasoning }: ReasoningRendererProps) => {
         }}
       >
         <span style={{ fontSize: "16px", color: "#9333ea" }}>🧠</span>
-        <Typography.Paragraph
-          style={{
-            margin: 0,
-            fontWeight: "500",
-            fontSize: "14px",
-            color: "#6b21a8",
-          }}
-        >
+        <Paragraph weight="medium" color="#6b21a8">
           Reasoning
-        </Typography.Paragraph>
+        </Paragraph>
         {isExpanded ? (
           <span style={{ fontSize: "16px", color: "#9333ea" }}>▼</span>
         ) : (
@@ -305,15 +206,16 @@ interface MessageRendererProps {
 
 const MessageRenderer = ({ message }: MessageRendererProps) => {
   // Handle both ResponseInputMessage (content: string) and ResponseOutputMessage (content: array)
-  const isInputMessage = typeof (message as any).content === "string";
+  const isInputMessage =
+    typeof (message as ResponseInputMessage).content === "string";
   const isUser = isInputMessage
-    ? (message as any).role === "user"
+    ? (message as ResponseInputMessage).role === "user"
     : (message as ResponseOutputMessage).content.some((content) =>
         content.text.startsWith("User:")
       );
 
   const messageText = isInputMessage
-    ? (message as any).content
+    ? (message as ResponseInputMessage).content
     : (message as ResponseOutputMessage).content.map((c) => c.text).join("\n");
 
   return (
@@ -335,14 +237,13 @@ const MessageRenderer = ({ message }: MessageRendererProps) => {
         }}
       >
         {isInputMessage ? (
-          <div>{messageText}</div>
+          <TextRenderer text={messageText} />
         ) : (
           (message as ResponseOutputMessage).content.map((content, index) => (
-            <TextRenderer key={index} content={content} isUser={false} />
+            <TextRenderer key={index} text={content.text} />
           ))
         )}
       </div>
-
 
       {/* Copy button */}
       <div
