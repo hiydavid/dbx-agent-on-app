@@ -23,11 +23,10 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
 ## Quick Start
 
-1. **Install Python dependencies:**
+1. **Create Python venv:**
 
    ```bash
-   source ~/mlflow/ml3.10/bin/activate  # Use your Python environment
-   pip install -r requirements.txt
+   uv sync
    ```
 
 2. **Install UI dependencies:**
@@ -35,7 +34,6 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    ```bash
    cd ui
    npm install
-   cd ..
    ```
 
 3. **Build the UI for production:**
@@ -54,7 +52,6 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
    - **UI**: http://localhost:8000 (React app)
    - **API**: http://localhost:8000/invocations
-   - **Health**: http://localhost:8000/health
 
 5. **Make API requests:**
 
@@ -65,9 +62,8 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
      -d '{
        "input": [
          {
-           "type": "message",
            "role": "user",
-           "content": [{"type": "text", "text": "what is 4*3 in python?"}]
+           "content": "hello"
          }
        ]
      }'
@@ -78,9 +74,8 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
      -d '{
        "input": [
          {
-           "type": "message",
            "role": "user",
-           "content": [{"type": "text", "text": "what is 4*3 in python?"}]
+           "content": "hello"
          }
        ],
        "stream": true
@@ -98,9 +93,6 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 ### Frontend (`ui/`)
 
 - **React + TypeScript** with Vite build system
-- **Custom Typography components** for consistent styling
-- **Real-time streaming** via Server-Sent Events
-- **Responsive design** with clean UI patterns
 
 ### Key Features
 
@@ -109,7 +101,16 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 - **Tool integration**: Unity Catalog function support
 - **MLflow tracing**: Automatic request/response logging
 
-## Development
+### Backend Development
+
+Update agent_server/agent.py to iterate on your agent.
+
+```bash
+# Install dependencies
+uv sync
+
+uv run agent-server
+```
 
 ### Frontend Development
 
