@@ -11,9 +11,6 @@ interface MessageListProps {
 
 const MessageList = ({ messages, isLoading }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  console.log(messages);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -40,17 +37,19 @@ const MessageList = ({ messages, isLoading }: MessageListProps) => {
           }}
         >
           <div style={{ textAlign: "center" }}>
-              <Title style={{ margin: "0 0 16px 0" }}>
-                Start a conversation
-              </Title>
-              <Paragraph color="#64748b">
-                Send a message to begin chatting with the agent
-              </Paragraph>
+            <Title style={{ margin: "0 0 16px 0" }}>Start a conversation</Title>
+            <Paragraph color="#64748b">
+              Send a message to begin chatting with the agent
+            </Paragraph>
           </div>
         </div>
       ) : (
         <div
-          style={{ maxWidth: "800px", margin: "0 auto", padding: "32px 24px 120px" }}
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            padding: "32px 24px 120px",
+          }}
         >
           {messages.map((message, index) => (
             <div
