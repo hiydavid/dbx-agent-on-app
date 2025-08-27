@@ -19,7 +19,7 @@ interface ExtendedParser {
 export class AgentApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = "http://0.0.0.0:8001") {
+  constructor(baseUrl: string = "http://0.0.0.0:8000") {
     this.baseUrl = baseUrl.replace(/\/$/, ""); // Remove trailing slash
   }
 
