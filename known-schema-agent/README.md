@@ -156,18 +156,22 @@ This builds the React UI into static files that the server can serve.
 
 1. **Build the UI (REQUIRED):**
    ```bash
-   npm run build
+   (cd ui && npm run build)
    ```
 
-2. **Deploy using Databricks CLI:**
+2. **Get your Databricks username and sync files:**
    ```bash
-   databricks apps deploy
+   DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
+   databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
    ```
 
-The `app.yaml` file is configured to automatically run the build step during deployment.
+3. **Deploy the app:**
+   ```bash
+   databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto
+   ```
 
 ### Production Checklist
-1. ✅ **Build the UI**: `npm run build` (REQUIRED)
-2. ✅ **Ensure Python dependencies are installed**
-3. ✅ **Run the server**: `python src/agent_server/agent.py`
+1. ✅ **Build the UI**: `(cd ui && npm run build)` (REQUIRED)
+2. ✅ **Sync to Databricks workspace**: `databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"`
+3. ✅ **Deploy the app**: `databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto`
 4. ✅ **Access the application at the deployed URL**
