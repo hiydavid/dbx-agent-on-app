@@ -6,10 +6,12 @@ import mlflow
 
 def setup_mlflow():
     """Initialize MLflow tracking and set active model."""
-    experiment_name = "/Users/bryan.qiu@databricks.com/bbqiu-agent-proto1"
+    experiment_name = "/Users/david.tempelmann@databricks.com/dt_test_agent_app"
     assert experiment_name is not None, "You must set an experiment name "
 
-    mlflow.set_tracking_uri("databricks")
+    # Use explicit profile format instead of relying on environment variable
+    profile = os.getenv("DATABRICKS_CONFIG_PROFILE", "e2-demo-field")
+    mlflow.set_tracking_uri(f"databricks://{profile}")
     mlflow.set_experiment(experiment_name)
 
     # in a Databricks App, the app name is set in the environment variable DATABRICKS_APP_NAME
