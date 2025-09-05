@@ -65,26 +65,20 @@ server.run()
 ## Deploying to Databricks Apps
 
 0. **Create a Databricks App**:
-   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
+   Ensure you have the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
 
    ```bash
    databricks apps create agent-proto
    ```
 
-1. **Build the UI:**
-
-   ```bash
-   (cd ui && npm run build)
-   ```
-
-2. **Get your Databricks username and sync files:**
+1. **Get your Databricks username and sync files:**
 
    ```bash
    DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
    databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
    ```
 
-3. **Deploy the app:**
+2. **Deploy the app:**
    ```bash
    databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto
    ```

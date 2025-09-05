@@ -73,6 +73,8 @@ Update agent_server/agent.py to iterate on your agent. Set the method to call wh
 uv run agent-server
 ```
 
+To test out your agent,
+
 ### Frontend Development
 
 ```bash
@@ -93,7 +95,7 @@ The application is designed for single-port deployment where the FastAPI server 
 ### Deployment to Databricks Apps
 
 0. **Create a Databricks App**:
-   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
+   Ensure you haveve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
 
    ```bash
    databricks apps create agent-proto
