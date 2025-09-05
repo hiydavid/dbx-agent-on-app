@@ -46,13 +46,13 @@ Set the method to call when querying `/invocations` by using the `@invoke` and `
 from server import invoke, stream, create_server
 
 @invoke()
-def my_predict(data):
+def my_predict(data: dict) -> dict:
     messages = data.get("messages", [])
     # Your logic here
     return {"response": "hi"}
 
 @stream()
-def my_stream(data):
+def my_stream(data: dict) -> dict:
     messages = data.get("messages", [])
     # Your streaming logic here
     for chunk in [{"response": "hello"}, {"response": "world"}]:
