@@ -4,7 +4,7 @@ import subprocess
 import mlflow
 
 
-def _configure_mlflow_tracking():
+def _configure_mlflow_tracking() -> None:
     """
     Configure MLflow tracking URI with robust authentication that works both locally and on Databricks Apps.
     
@@ -49,7 +49,7 @@ def _configure_mlflow_tracking():
     mlflow.set_tracking_uri("databricks")
 
 
-def setup_mlflow():
+def setup_mlflow() -> None:
     """Initialize MLflow tracking and set active model."""
     experiment_name = None
     assert experiment_name is not None, "You must set an experiment name "

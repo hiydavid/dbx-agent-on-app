@@ -25,7 +25,7 @@ _invoke_function: Optional[Callable] = None
 _stream_function: Optional[Callable] = None
 
 
-def invoke():
+def invoke() -> Callable:
     """Decorator to register a function as an invoke endpoint. Can only be used once."""
 
     def decorator(func: Callable):
@@ -38,7 +38,7 @@ def invoke():
     return decorator
 
 
-def stream():
+def stream() -> Callable:
     """Decorator to register a function as a stream endpoint. Can only be used once."""
 
     def decorator(func: Callable):
@@ -78,7 +78,7 @@ class AgentServer:
         self._setup_static_files()
         self._setup_routes()
 
-    def _setup_static_files(self):
+    def _setup_static_files(self) -> None:
         """Setup static file serving for the UI"""
         # Get the path to the UI build folder relative to the server location
         ui_dist_path = Path(__file__).parent.parent.parent / "ui/static"
@@ -106,7 +106,7 @@ class AgentServer:
         with InMemoryTraceManager.get_instance().get_trace(trace_id) as trace:
             return {"trace": trace.to_mlflow_trace().to_dict()}
 
-    def _setup_routes(self):
+    def _setup_routes(self) -> None:
         @self.app.post("/invocations")
         async def invocations_endpoint(request: Request):
             start_time = time.time()
@@ -150,11 +150,11 @@ class AgentServer:
                 return await self._handle_invoke_request(request_data, start_time, return_trace)
 
         @self.app.get("/health")
-        async def health_check():
+        async def health_check() -> dict:
             """Health check endpoint for frontend connection testing"""
             return {"status": "healthy", "server": "agent-server", "version": "0.0.1"}
 
-    async def _handle_invoke_request(self, data: dict, start_time: float, return_trace: bool):
+    async def _handle_invoke_request(self, data: dict, start_time: float, return_trace: bool) -> dict:
         """Handle non-streaming invoke requests"""
         # Use the single invoke function
         if _invoke_function is None:
@@ -213,7 +213,7 @@ class AgentServer:
 
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def _handle_stream_request(self, data: dict, start_time: float, return_trace: bool):
+    async def _handle_stream_request(self, data: dict, start_time: float, return_trace: bool) -> StreamingResponse:
         """Handle streaming requests"""
         # Use the single stream function
         if _stream_function is None:
@@ -291,7 +291,7 @@ class AgentServer:
 
         return StreamingResponse(generate(), media_type="text/event-stream")
 
-    def run(self, host: str = "0.0.0.0", port: int = 8000):
+    def run(self, host: str = "0.0.0.0", port: int = 8000) -> None:
         import uvicorn
 
         uvicorn.run(self.app, host=host, port=port)
