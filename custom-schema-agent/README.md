@@ -2,96 +2,89 @@
 
 MLflow-compatible agent server with FastAPI that supports both streaming and non-streaming requests.
 
-## Features
-
-- **Single `/invocations` endpoint** that routes based on `stream` parameter
-- **MLflow agent type validation** for `agent/v1/chat`, `agent/v2/chat`, and `agent/v1/responses`
-- **Automatic MLflow tracing** for all requests and responses
-- **Async/sync function detection** - works with both sync and async agent functions
-- **Decorator-based registration** using `@predict` and `@predict_stream`
-
 ## Quick Start
 
-1. **Install dependencies and activate the python env:**
+1. **Create Python venv:**
+
    ```bash
    uv sync
-   source .venv/bin/activate
    ```
 
 2. **Run the server:**
-   ```bash
-   # Option 1: Using uv script (recommended)
-   uv run agent-server
-   
-   # Option 2: Direct Python execution
-   python src/agent_server/example_agent.py
-  
-   Both options automatically load the example agent functions and start the server on http://localhost:8000.
 
-3. **Make requests:**
    ```bash
-   # Non-streaming
-   curl -X POST http://localhost:8000/invocations \
-     -H "Content-Type: application/json" \
-     -d '{
-       "input": [
-         {
-           "role": "user",
-           "content": "what is 4*3 in python?"
-         }
-       ]
-     }'
-
-   # Streaming  
-   curl -X POST http://localhost:8000/invocations \
-     -H "Content-Type: application/json" \
-     -d '{
-       "input": [
-         {
-           "role": "user", 
-           "content": "what is 4*3 in python?"
-         }
-       ],
-       "stream": true
-     }'
+     uv run agent-server
    ```
 
-## Usage
+   The server runs on **port 8000** and serves the API at http://localhost:8000/invocations
 
-### Create Your Agent
+3. **Make API requests:**
+
+   You can generate an OAuth token and query your Databricks App via API:
+
+   ```
+   databricks auth login --host <https://host.databricks.com>
+   databricks auth token
+   ```
+
+   ```
+   curl --request POST \
+     --url <app-url.databricksapps.com>/invocations \
+     --header 'Authorization: Bearer <oauth token>' \
+     --header 'content-type: application/json' \
+     --data '{
+   "input": [{"role": "user", "content": "hi"}],
+   "stream": true
+   }'
+   ```
+
+## Create Your Agent
+
+Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py.
 
 ```python
-from agent_server import predict, predict_stream, create_server
+from server import invoke, stream, create_server
 
-@predict()
+@invoke()
 def my_predict(data):
     messages = data.get("messages", [])
     # Your logic here
-    return "Response"
+    return {"response": "hi"}
 
-@predict_stream()
+@stream()
 def my_stream(data):
     messages = data.get("messages", [])
     # Your streaming logic here
-    for chunk in ["Hello", "World"]:
+    for chunk in [{"response": "hello"}, {"response": "world"}]:
         yield chunk
 
-# Create server for ChatModel
-server = create_server("agent/v1/chat")
+server = create_server()
 server.run()
 ```
 
-# Deploying to Databricks Apps
-- Ensure you have the Databricks CLI installed and configured.
+## Deploying to Databricks Apps
 
-Create a Databricks App to host your agent, server, and UI:
-```bash
-databricks apps create agent-proto
-```
+0. **Create a Databricks App**:
+   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
 
-Upload the source code to Databricks and deploy the app:
-```bash
-DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
-databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
-databricks apps deploy agent-proto --source-code-path "/Workspace/Users/$DATABRICKS_USERNAME/agent-proto"
-```
+   ```bash
+   databricks apps create agent-proto
+   ```
+
+1. **Build the UI:**
+
+   ```bash
+   (cd ui && npm run build)
+   ```
+
+2. **Get your Databricks username and sync files:**
+
+   ```bash
+   DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
+   databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
+   ```
+
+3. **Deploy the app:**
+   ```bash
+   databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto
+   ```

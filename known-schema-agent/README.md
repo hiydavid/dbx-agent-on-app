@@ -2,25 +2,6 @@
 
 A complete AI agent application with FastAPI backend and React frontend, featuring MLflow compatibility and static file serving from a single port.
 
-## Features
-
-### Backend
-
-- **Single `/invocations` endpoint** that routes based on `stream` parameter
-- **MLflow agent type validation** for `agent/v1/responses`
-- **Automatic MLflow tracing** for all requests and responses
-- **Tool calling support** with Unity Catalog integration
-- **Static file serving** for the React UI
-- **Unified port 8000** for both API and UI
-
-### Frontend
-
-- **Real-time streaming** chat interface
-- **Custom Typography system** matching design standards
-- **Rich message rendering** (text, tool calls, reasoning)
-- **Responsive design** with clean UI
-- **Built-in static serving** from the backend
-
 ## Quick Start
 
 1. **Create Python venv:**
@@ -29,23 +10,16 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    uv sync
    ```
 
-2. **Install UI dependencies:**
+2. **Install UI dependencies and build it for prod:**
 
    ```bash
-   cd ui
-   npm install
+   (cd ui && npm run build)
    ```
 
-3. **Build the UI for production:**
+3. **Run the combined server:**
 
    ```bash
-   npm run build
-   ```
-
-4. **Run the combined server:**
-
-   ```bash
-   python src/agent_server/agent.py
+   uv run agent-server
    ```
 
    The server runs on **port 8000** and serves:
@@ -53,33 +27,24 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
    - **UI**: http://localhost:8000 (React app)
    - **API**: http://localhost:8000/invocations
 
-5. **Make API requests:**
+4. **Make API requests:**
 
-   ```bash
-   # Non-streaming
-   curl -X POST http://localhost:8000/invocations \
-     -H "Content-Type: application/json" \
-     -d '{
-       "input": [
-         {
-           "role": "user",
-           "content": "hello"
-         }
-       ]
-     }'
+   You can generate an OAuth token and query your Databricks App via API:
 
-   # Streaming
-   curl -X POST http://localhost:8000/invocations \
-     -H "Content-Type: application/json" \
-     -d '{
-       "input": [
-         {
-           "role": "user",
-           "content": "hello"
-         }
-       ],
-       "stream": true
-     }'
+   ```
+   databricks auth login --host <https://host.databricks.com>
+   databricks auth token
+   ```
+
+   ```
+   curl --request POST \
+     --url <app-url.databricksapps.com>/invocations \
+     --header 'Authorization: Bearer <oauth token>' \
+     --header 'content-type: application/json' \
+     --data '{
+   "input": [{"role": "user", "content": "hi"}],
+   "stream": true
+   }'
    ```
 
 ## Architecture
@@ -88,7 +53,7 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
 - **`agent.py`**: Main agent implementation with tool calling
 - **`server.py`**: FastAPI server with static file serving
-- **`mlflow_config.py`**: MLflow configuration and setup
+- **`mlflow_config.py`**: MLflow configuration and Databricks auth setup
 
 ### Frontend (`ui/`)
 
@@ -98,17 +63,13 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
 - **Unified serving**: Single port (8000) for both API and UI
 - **Static file routing**: React app served at `/`, API at `/invocations`
-- **Tool integration**: Unity Catalog function support
 - **MLflow tracing**: Automatic request/response logging
 
 ### Backend Development
 
-Update agent_server/agent.py to iterate on your agent.
+Update agent_server/agent.py to iterate on your agent. Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py. See an example in src/agent_server/agent.py.
 
 ```bash
-# Install dependencies
-uv sync
-
 uv run agent-server
 ```
 
@@ -116,31 +77,13 @@ uv run agent-server
 
 ```bash
 cd ui
-
-# Install dependencies
 npm install
 
-# Development server (optional - for UI-only dev)
+# Development server (run in a separate terminal window while also running the backend)
 npm run dev
 
 # Build for production
 npm run build
-```
-
-### File Structure
-
-```
-known-schema-agent/
-├── src/agent_server/          # Python backend
-│   ├── agent.py              # Main agent with tools
-│   ├── server.py             # FastAPI server
-│   └── mlflow_config.py      # MLflow setup
-├── ui/                       # React frontend
-│   ├── src/components/       # React components
-│   ├── static/               # Built static files (generated)
-│   └── package.json          # Frontend dependencies
-├── requirements.txt          # Python dependencies
-└── README.md                # This file
 ```
 
 ## Deployment
@@ -149,7 +92,14 @@ The application is designed for single-port deployment where the FastAPI server 
 
 ### Deployment to Databricks Apps
 
-1. **Build the UI (REQUIRED):**
+0. **Create a Databricks App**:
+   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
+
+   ```bash
+   databricks apps create agent-proto
+   ```
+
+1. **Build the UI:**
 
    ```bash
    (cd ui && npm run build)
