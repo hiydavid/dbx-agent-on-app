@@ -179,8 +179,7 @@ class AgentServer:
 
                 if return_trace:
                     databricks_output = self._get_databricks_output(span.trace_id)
-
-            result["databricks_output"] = databricks_output
+                    result["databricks_output"] = databricks_output
 
             # Log response details
             self.logger.info(
