@@ -51,7 +51,7 @@ def _configure_mlflow_tracking():
 
 def setup_mlflow():
     """Initialize MLflow tracking and set active model."""
-    experiment_name = "/Users/david.tempelmann@databricks.com/dt_test_agent_app"
+    experiment_name = None
     assert experiment_name is not None, "You must set an experiment name "
 
     # Configure MLflow tracking URI with robust authentication

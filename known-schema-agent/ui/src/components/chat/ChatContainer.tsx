@@ -23,13 +23,13 @@ const ChatContainer = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div 
-        style={{ 
-          padding: "16px", 
-          display: "flex", 
-          justifyContent: "space-between", 
+      <div
+        style={{
+          padding: "16px",
+          display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "1px solid #e5e7eb"
+          borderBottom: "1px solid #e5e7eb",
         }}
       >
         <Title>Playground</Title>

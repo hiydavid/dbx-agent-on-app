@@ -187,12 +187,12 @@ class AgentServer:
                         async for chunk in func(data):
                             chunk = self.validator.validate_and_convert_result(chunk, stream=True)
                             all_chunks.append(chunk)
-                            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                            yield f"data: {json.dumps(chunk)}\n\n"
                     else:
                         for chunk in func(data):
                             chunk = self.validator.validate_and_convert_result(chunk, stream=True)
                             all_chunks.append(chunk)
-                            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                            yield f"data: {json.dumps(chunk)}\n\n"
 
                     # Log the full streaming session
                     duration = round(time.time() - start_time, 2)
