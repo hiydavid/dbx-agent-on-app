@@ -4,6 +4,13 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
 ## Quick Start
 
+0. **Install dependencies**
+   Install the latest versions of `uv` (python package manager) and `nvm` (node version manager):
+
+   - [`uv` installation docs](https://docs.astral.sh/uv/getting-started/installation/)
+   - [`nvm` installation`](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
+   - Run `nvm use 20` to use Node 20 LTS
+
 1. **Create Python venv:**
 
    ```bash
@@ -20,9 +27,11 @@ A complete AI agent application with FastAPI backend and React frontend, featuri
 
    ```bash
    uv run agent-server
+   # If you want to run it in a different port, you can use the --port command to pass it in:
+   # uv run agent-server --port 8001
    ```
 
-   The server runs on **port 8000** and serves:
+   The server runs on **port 8000** by default and serves:
 
    - **UI**: http://localhost:8000 (React app)
    - **API**: http://localhost:8000/invocations
@@ -73,6 +82,8 @@ Update agent_server/agent.py to iterate on your agent. Set the method to call wh
 uv run agent-server
 ```
 
+To test out your agent,
+
 ### Frontend Development
 
 ```bash
@@ -93,7 +104,7 @@ The application is designed for single-port deployment where the FastAPI server 
 ### Deployment to Databricks Apps
 
 0. **Create a Databricks App**:
-   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
+   Ensure you haveve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
 
    ```bash
    databricks apps create agent-proto

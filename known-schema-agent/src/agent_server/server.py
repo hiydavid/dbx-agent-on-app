@@ -94,10 +94,9 @@ class AgentServer:
             async def serve_ui():
                 return FileResponse(str(ui_dist_path / "index.html"))
                 
-            # Serve vite.svg and other root-level static files
-            @self.app.get("/vite.svg")
-            async def serve_vite_svg():
-                return FileResponse(str(ui_dist_path / "vite.svg"))
+            @self.app.get("/databricks.svg")
+            async def serve_databricks_svg():
+                return FileResponse(str(ui_dist_path / "databricks.svg"))
         else:
             self.logger.warning(f"UI dist folder not found at {ui_dist_path}. UI will not be served.")
 

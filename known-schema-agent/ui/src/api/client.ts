@@ -19,15 +19,15 @@ interface ExtendedParser {
 export class AgentApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl?: string) {
-    // Use same origin when deployed, fallback to localhost for development
-    if (baseUrl) {
-      this.baseUrl = baseUrl.replace(/\/$/, "");
-    } else if (typeof window !== 'undefined') {
-      // Use the same origin as the current page (works for both HTTP and HTTPS)
-      this.baseUrl = window.location.origin;
+  constructor() {
+    if (typeof window !== "undefined") {
+      if (window.location.origin.includes("localhost")) {
+        this.baseUrl = "http://localhost:8000";
+      } else {
+        this.baseUrl = window.location.origin;
+      }
     } else {
-      // Fallback for development/SSR
+      // Fallback for SSR
       this.baseUrl = "http://localhost:8000";
     }
   }
@@ -101,13 +101,10 @@ export class AgentApiClient {
             throw new Error(data.error.message || "Stream error");
           }
 
-          console.log("data", data);
-
           if (data) {
             // Validate the chunk
             try {
               const validatedChunk = ResponsesStreamEventSchema.parse(data);
-              console.log("validatedChunk", validatedChunk);
               if (
                 validatedChunk.type === "response.output_item.done" &&
                 validatedChunk.item
@@ -115,7 +112,8 @@ export class AgentApiClient {
                 // Store the item to be yielded
                 console.log(
                   "✅ Storing item for yielding:",
-                  validatedChunk.item
+                  validatedChunk.item,
+                  new Date().toISOString()
                 );
                 (parser as ExtendedParser).itemQueue.push(
                   validatedChunk.item as ResponseOutputItem
@@ -133,14 +131,7 @@ export class AgentApiClient {
                 );
               }
             } catch (validationError) {
-              console.warn("Chunk validation failed:", validationError);
-              // Store anyway for development
-              if (data.item) {
-                console.log("⚠️ Storing unvalidated item:", data.item);
-                (parser as ExtendedParser).itemQueue.push(
-                  data.item as ResponseOutputItem
-                );
-              }
+              console.warn("Chunk validation failed:", validationError, data);
             }
           }
         } catch (parseError) {
@@ -168,7 +159,7 @@ export class AgentApiClient {
         while (parser.itemQueue.length > 0) {
           const item = parser.itemQueue.shift();
           if (item) {
-            console.log("🚀 YIELDING ITEM:", item);
+            console.log("🚀 YIELDING ITEM:", item, new Date().toISOString());
             yield item;
           }
         }

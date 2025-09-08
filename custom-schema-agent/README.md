@@ -33,26 +33,27 @@ MLflow-compatible agent server with FastAPI that supports both streaming and non
      --header 'Authorization: Bearer <oauth token>' \
      --header 'content-type: application/json' \
      --data '{
-   "input": [{"role": "user", "content": "hi"}],
+   "messages": [{"role": "user", "content": "hi"}],
    "stream": true
    }'
    ```
 
 ## Create Your Agent
 
-Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py.
+Modify agent_server/agent.py to create your custom agent. Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py.
 
 ```python
+# in agent.py
 from server import invoke, stream, create_server
 
 @invoke()
-def my_predict(data):
+def my_predict(data: dict) -> dict:
     messages = data.get("messages", [])
     # Your logic here
     return {"response": "hi"}
 
 @stream()
-def my_stream(data):
+def my_stream(data: dict) -> dict:
     messages = data.get("messages", [])
     # Your streaming logic here
     for chunk in [{"response": "hello"}, {"response": "world"}]:
@@ -65,26 +66,20 @@ server.run()
 ## Deploying to Databricks Apps
 
 0. **Create a Databricks App**:
-   Ensure you ahve the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
+   Ensure you have the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) installed and configured
 
    ```bash
    databricks apps create agent-proto
    ```
 
-1. **Build the UI:**
-
-   ```bash
-   (cd ui && npm run build)
-   ```
-
-2. **Get your Databricks username and sync files:**
+1. **Get your Databricks username and sync files:**
 
    ```bash
    DATABRICKS_USERNAME=$(databricks current-user me | jq -r .userName)
    databricks sync . "/Users/$DATABRICKS_USERNAME/agent-proto"
    ```
 
-3. **Deploy the app:**
+2. **Deploy the app:**
    ```bash
    databricks apps deploy agent-proto --source-code-path /Workspace/Users/$DATABRICKS_USERNAME/agent-proto
    ```

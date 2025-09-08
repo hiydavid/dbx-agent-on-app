@@ -330,12 +330,14 @@ def predict_stream(
 
 
 def main():
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Start the agent server")
+    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on (default: 8000)")
+    args = parser.parse_args()
+    
     server = create_server("agent/v1/responses")
     setup_mlflow()
-    print("Single endpoint: POST /invocations")
+    print(f"Single endpoint: POST /invocations on port {args.port}")
 
-    server.run()
-
-
-if __name__ == "__main__":
-    main()
+    server.run(port=args.port)
