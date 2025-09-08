@@ -17,7 +17,24 @@ interface ExtendedParser {
 }
 
 export class AgentApiClient {
-  private baseUrl = "http://localhost:8000";
+  private baseUrl: string;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      if (window.location.origin.includes("localhost")) {
+        this.baseUrl = "http://localhost:8000";
+      } else {
+        this.baseUrl = window.location.origin;
+      }
+    } else {
+      // Fallback for SSR
+      this.baseUrl = "http://localhost:8000";
+    }
+  }
+
+  updateBaseUrl(baseUrl: string) {
+    this.baseUrl = baseUrl.replace(/\/$/, "");
+  }
 
   async sendMessage(
     request: ResponsesAgentRequest
