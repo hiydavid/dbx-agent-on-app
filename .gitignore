@@ -205,3 +205,4 @@ sketch
 **/uv.lock
 **/mlruns/
 **/.vite/
+**/.databricks

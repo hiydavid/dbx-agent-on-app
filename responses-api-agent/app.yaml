@@ -1,0 +1,6 @@
+command: ["uv", "run", "agent-server"]
+# databricks apps listen by default on port 8000
+
+env:
+  - name: MLFLOW_TRACKING_URI
+    value: "databricks"

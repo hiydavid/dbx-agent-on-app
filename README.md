@@ -17,8 +17,8 @@ Please feel free to reach out to agent-feedback@databricks.com if you have any f
 
 The templates in this repo have:
 
-- MLflow tracing built in
-- An async server to query your agent, configured to route requests to `/invocations` to your agent implementation
+- Built-in MLflow tracing
+- An async server to query your agent, configured to route requests from `/invocations` to your agent implementation
 - Decorators to easily denote stream and invoke methods
 
 #### custom-schema-agent
