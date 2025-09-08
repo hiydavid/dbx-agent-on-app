@@ -8,13 +8,8 @@ import type {
   ResponseErrorItem,
 } from "../schemas/validation";
 
-export const useAgentApi = (endpoint?: string) => {
-  const clientRef = useRef(new AgentApiClient(endpoint));
-
-  // Update client when endpoint changes
-  if (clientRef.current && endpoint) {
-    clientRef.current.updateBaseUrl(endpoint);
-  }
+export const useAgentApi = () => {
+  const clientRef = useRef(new AgentApiClient());
 
   const sendMessageMutation = useMutation({
     mutationFn: async (request: ResponsesAgentRequest) => {
@@ -30,16 +25,11 @@ export const useAgentApi = (endpoint?: string) => {
   };
 };
 
-export const useStreamingChat = (endpoint?: string) => {
+export const useStreamingChat = () => {
   const [messages, setMessages] = useState<ResponseInputItem[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const clientRef = useRef(new AgentApiClient(endpoint));
+  const clientRef = useRef(new AgentApiClient());
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  // Update client when endpoint changes
-  if (clientRef.current && endpoint) {
-    clientRef.current.updateBaseUrl(endpoint);
-  }
 
   const sendStreamingMessage = useCallback(
     async (userMessage: string) => {

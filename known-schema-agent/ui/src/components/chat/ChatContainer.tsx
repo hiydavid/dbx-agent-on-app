@@ -11,7 +11,7 @@ const ChatContainer = () => {
     sendStreamingMessage,
     stopStreaming,
     clearMessages,
-  } = useStreamingChat(); // Will auto-detect the correct URL
+  } = useStreamingChat();
 
   const handleSendMessage = async (content: string) => {
     await sendStreamingMessage(content);

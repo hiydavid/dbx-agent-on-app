@@ -17,24 +17,7 @@ interface ExtendedParser {
 }
 
 export class AgentApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl?: string) {
-    // Use same origin when deployed, fallback to localhost for development
-    if (baseUrl) {
-      this.baseUrl = baseUrl.replace(/\/$/, "");
-    } else if (typeof window !== 'undefined') {
-      // Use the same origin as the current page (works for both HTTP and HTTPS)
-      this.baseUrl = window.location.origin;
-    } else {
-      // Fallback for development/SSR
-      this.baseUrl = "http://localhost:8000";
-    }
-  }
-
-  updateBaseUrl(baseUrl: string) {
-    this.baseUrl = baseUrl.replace(/\/$/, "");
-  }
+  private baseUrl = "http://localhost:8000";
 
   async sendMessage(
     request: ResponsesAgentRequest
