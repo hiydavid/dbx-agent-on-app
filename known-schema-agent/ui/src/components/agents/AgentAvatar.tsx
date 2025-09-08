@@ -1,4 +1,5 @@
 import { UserIcon, SparkleDoubleIcon } from "@databricks/design-system";
+import { Paragraph } from "../common/Typography";
 
 interface AgentAvatarProps {
   role: "user" | "assistant";
@@ -48,14 +49,9 @@ const AvatarLabel = ({ role }: AvatarLabelProps) => {
       }}
     >
       <AgentAvatar role={role} />
-      <div
-        style={{
-          fontSize: "16px",
-          color: "#1f2937",
-        }}
-      >
+      <Paragraph size="large" color="#1f2937">
         {role === "user" ? "You" : "Agent"}
-      </div>
+      </Paragraph>
     </div>
   );
 };
