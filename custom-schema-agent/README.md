@@ -33,16 +33,17 @@ MLflow-compatible agent server with FastAPI that supports both streaming and non
      --header 'Authorization: Bearer <oauth token>' \
      --header 'content-type: application/json' \
      --data '{
-   "input": [{"role": "user", "content": "hi"}],
+   "messages": [{"role": "user", "content": "hi"}],
    "stream": true
    }'
    ```
 
 ## Create Your Agent
 
-Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py.
+Modify agent_server/agent.py to create your custom agent. Set the method to call when querying `/invocations` by using the `@invoke` and `@stream` decorators from agent_server/server.py.
 
 ```python
+# in agent.py
 from server import invoke, stream, create_server
 
 @invoke()
