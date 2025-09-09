@@ -4,3 +4,5 @@ command: ["uv", "run", "agent-server"]
 env:
   - name: MLFLOW_TRACKING_URI
     value: "databricks"
+  - name: MLFLOW_EXPERIMENT_ID
+    value: ""
