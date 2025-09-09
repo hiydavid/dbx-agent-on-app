@@ -118,7 +118,7 @@ def main(): # called in the pyproject.toml `agent-server` script
 Common changes to make:
 
 - Feel free to add as many files or folders as you want to your agent, just make sure that the script within `pyproject.toml` runs the right script that will start the server and set up MLflow tracing.
-- To add dependencies to your agent, modify `pyproject.toml`. Refer to the [python pyproject.toml guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-and-requirements) for more info.
+- To add dependencies to your agent, run `uv add <package_name>` (ex. `uv add "mlflow-skinny[databricks]"`). Refer to the [python pyproject.toml guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-and-requirements) for more info.
 - While we have built-in MLflow tracing when calling the methods annotated with `@invoke()` and `@stream()`, you can also further instrument your own agent. Refer to the [MLflow tracing documentation](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/app-instrumentation/) for more info.
   - Search for `"start_span"` within `src/agent_server/server.py` for the built-in implementation.
 - Refer to the Agent Framework ["Author AI Agents in Code" documentation](https://docs.databricks.com/aws/en/generative-ai/agent-framework/author-agent) for more information.
@@ -247,5 +247,5 @@ For future updates to the agent, you only need to sync and redeploy your agent. 
 - How is my agent being versioned in MLflow?
   - In `setup_mlflow()` from `src/agent_server/mlflow_config.py`, we get the current git commit hash and use it to create a logged model, and all traces from that version of the agent will be logged to the corresponding model in MLflow on Databricks.
 - How do I register my logged model to the UC model registry?
-  - Fill in the catalog, schema, and model name for your UC model in `register_model_to_uc()` from `src/agent_server/mlflow_config.py`.
-  - Call `register_model_to_uc()` from `src/agent_server/mlflow_config.py` after calling `setup_mlflow()`.
+  - Fill in the catalog, schema, and model name for your UC model in `setup_mlflow()` from `src/agent_server/mlflow_config.py`.
+  - Call `setup_mlflow(register_model_to_uc=True)` within the startup script in `main()` from `src/agent_server/agent.py`.

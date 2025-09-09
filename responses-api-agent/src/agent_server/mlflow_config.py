@@ -51,7 +51,7 @@ def _configure_mlflow_tracking() -> None:
     mlflow.set_tracking_uri("databricks")
 
 
-def setup_mlflow() -> None:
+def setup_mlflow(*, register_model_to_uc: bool = False) -> None:
     """Initialize MLflow tracking and set active model."""
     experiment_id = os.getenv("MLFLOW_EXPERIMENT_ID")
     assert experiment_id is not None, (
@@ -83,19 +83,15 @@ def setup_mlflow() -> None:
         f"Active LoggedModel: '{active_model_info.name}', Model ID: '{active_model_info.model_id}'"
     )
 
-
-def register_model_to_uc() -> None:
-    """Register the active model to the UC model registry."""
-    mlflow.set_registry_uri(os.getenv("MLFLOW_REGISTRY_URI"))
-
-    # Define the catalog, schema, and model name for the UC model
-    # Prefer standard Databricks env vars with sensible fallbacks
-    catalog = os.getenv("DATABRICKS_DEFAULT_CATALOG") or os.getenv("UC_CATALOG") or "main"
-    schema = os.getenv("DATABRICKS_DEFAULT_SCHEMA") or os.getenv("UC_SCHEMA") or "default"
-    model_name = os.getenv("UC_MODEL_NAME", "langgraph-responses-agent")
-    UC_MODEL_NAME = f"{catalog}.{schema}.{model_name}"
-
-    active_model_id = mlflow.get_active_model_id()
-
-    uc_registered_model_info = mlflow.register_model(model_uri=active_model_id, name=UC_MODEL_NAME)
-    print(f"Registered model to UC: {uc_registered_model_info}")
+    if register_model_to_uc:
+        mlflow.set_registry_uri(os.getenv("MLFLOW_REGISTRY_URI"))
+        # TODO: fill in the catalog, schema, and model name for the UC model
+        catalog = "main"
+        schema = "default"
+        model_name = ""
+        assert model_name, "Please set the catalog, schema, and model name for the UC model"
+        UC_MODEL_NAME = f"{catalog}.{schema}.{model_name}"
+        uc_registered_model_info = mlflow.register_model(
+            model_uri=active_model_info.model_uri, name=UC_MODEL_NAME
+        )
+        print(f"Registered model to UC: {uc_registered_model_info}")

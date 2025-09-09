@@ -18,7 +18,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 from unitycatalog.ai.core.base import get_uc_function_client
 
-from agent_server.mlflow_config import register_model_to_uc, setup_mlflow
+from agent_server.mlflow_config import setup_mlflow
 from agent_server.server import create_server, invoke, parse_server_args, stream
 
 ############################################
@@ -341,14 +341,12 @@ def main():
     args = parse_server_args()
 
     setup_mlflow()
-    register_model_to_uc()
     print(
         f"Single endpoint: POST /invocations on port {args.port} with {args.workers} workers and reload: {args.reload}"
     )
 
-    # Use import string for workers support
     agent_server.run(
-        "agent_server.agent:app",  # import string for app above to support workers
+        "agent_server.agent:app",  # import string for app defined above to support workers
         port=args.port,
         workers=args.workers,
         reload=args.reload,
