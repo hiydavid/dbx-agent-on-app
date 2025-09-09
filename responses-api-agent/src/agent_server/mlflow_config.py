@@ -51,17 +51,17 @@ def _configure_mlflow_tracking() -> None:
 
 def setup_mlflow() -> None:
     """Initialize MLflow tracking and set active model."""
-    experiment_name = "/Users/bryan.qiu@databricks.com/bbqiu-agent-proto1"
-    assert experiment_name is not None, "You must set an experiment name "
+    experiment_id = os.getenv("MLFLOW_EXPERIMENT_ID")
+    assert experiment_id is not None, "You must set MLFLOW_EXPERIMENT_ID in your environment to enable MLflow git-based logging and real time tracing. Refer to the README for more info."
 
     # Configure MLflow tracking URI with robust authentication
     _configure_mlflow_tracking()
-    mlflow.set_experiment(experiment_name)
+    mlflow.set_experiment(experiment_id=experiment_id)
 
     # in a Databricks App, the app name is set in the environment variable DATABRICKS_APP_NAME
     # in local development, we use a fallback app name
     # TODO: add a fallback app name
-    app_name = os.getenv("DATABRICKS_APP_NAME", "FALLBACK-LOCAL-APP-NAME")
+    app_name = os.getenv("DATABRICKS_APP_NAME", "local-dev")
 
     # Get current git commit hash for versioning
     try:
