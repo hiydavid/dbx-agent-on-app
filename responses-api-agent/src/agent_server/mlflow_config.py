@@ -19,7 +19,7 @@ def _configure_mlflow_tracking() -> None:
     databricks_token = os.getenv("DATABRICKS_TOKEN")
 
     if databricks_host and databricks_token:
-        print(f"Using explicit DATABRICKS_HOST and DATABRICKS_TOKEN for authentication")
+        print("Using explicit DATABRICKS_HOST and DATABRICKS_TOKEN for authentication")
         mlflow.set_tracking_uri("databricks")
         return
 

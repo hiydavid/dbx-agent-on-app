@@ -9,7 +9,7 @@ from langchain_core.runnables import RunnableLambda
 from mlflow.langchain.output_parsers import ChatCompletionOutputParser
 
 from agent_server.mlflow_config import setup_mlflow
-from agent_server.server import create_server, invoke, stream
+from agent_server.server import create_server, invoke, parse_server_args, stream
 
 # Enable MLflow tracing
 mlflow.langchain.autolog()
@@ -53,19 +53,25 @@ async def stream(
         yield chunk
 
 
+###########################################
+# Required components to start the server #
+###########################################
+
+agent_server = create_server("agent/v1/responses")
+app = agent_server.app
+
+
 def main():
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Start the agent server")
-    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on (default: 8000)")
-    args = parser.parse_args()
-    
-    server = create_server()
+    args = parse_server_args()
+
     setup_mlflow()
-    print(f"Single endpoint: POST /invocations on port {args.port}")
+    print(
+        f"Single endpoint: POST /invocations on port {args.port} with {args.workers} workers and reload: {args.reload}"
+    )
 
-    server.run(port=args.port)
-
-
-if __name__ == "__main__":
-    main()
+    agent_server.run(
+        "agent_server.agent:app",  # import string for app defined above to support workers
+        port=args.port,
+        workers=args.workers,
+        reload=args.reload,
+    )
