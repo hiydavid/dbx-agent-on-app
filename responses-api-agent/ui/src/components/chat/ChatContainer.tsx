@@ -32,7 +32,7 @@ const ChatContainer = () => {
           borderBottom: "1px solid #e5e7eb",
         }}
       >
-        <Title>Playground</Title>
+        <Title>Chat with Agent</Title>
         <Button
           onClick={handleClearChat}
           size="small"

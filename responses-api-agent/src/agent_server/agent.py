@@ -24,7 +24,7 @@ from agent_server.server import create_server, invoke, stream
 ############################################
 # Define your LLM endpoint and system prompt
 ############################################
-LLM_ENDPOINT_NAME = "databricks-claude-sonnet-4"
+LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
 
 SYSTEM_PROMPT = """"""
 
