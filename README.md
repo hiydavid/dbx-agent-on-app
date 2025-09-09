@@ -19,16 +19,10 @@ Please refer to each individual template's README.md for more details. The templ
 
 - Built-in MLflow tracing
 - An async server to query your agent, configured to route requests from `/invocations` to your agent implementation
-- Decorators to easily denote stream and invoke methods
+- Decorators to easily specify stream and invoke methods
 
-### responses-api-agent
+Click on each of the links below to see more details about each agent template:
 
-TODO
-
-### chat-completions-api-agent
-
-TODO
-
-### non-conversational-agent
-
-TODO
+- [responses-api-agent](/responses-api-agent/README.md)
+- [chat-completions-api-agent](/chat-completions-api-agent/README.md)
+- [non-conversational-agent](/non-conversational-agent/README.md)
