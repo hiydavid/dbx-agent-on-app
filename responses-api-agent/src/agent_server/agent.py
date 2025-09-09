@@ -19,7 +19,7 @@ from pydantic import BaseModel
 from unitycatalog.ai.core.base import get_uc_function_client
 
 from agent_server.mlflow_config import setup_mlflow
-from agent_server.server import create_server, invoke, stream
+from agent_server.server import create_server, invoke, parse_server_args, stream
 
 ############################################
 # Define your LLM endpoint and system prompt
@@ -329,15 +329,25 @@ def predict_stream(
 #     }
 
 
-def main():
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Start the agent server")
-    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on (default: 8000)")
-    args = parser.parse_args()
-    
-    server = create_server("agent/v1/responses")
-    setup_mlflow()
-    print(f"Single endpoint: POST /invocations on port {args.port}")
+###########################################
+# Required components to start the server #
+###########################################
 
-    server.run(port=args.port)
+agent_server = create_server("agent/v1/responses")
+app = agent_server.app
+
+
+def main():
+    args = parse_server_args()
+
+    setup_mlflow()
+    print(
+        f"Single endpoint: POST /invocations on port {args.port} with {args.workers} workers and reload: {args.reload}"
+    )
+
+    agent_server.run(
+        "agent_server.agent:app",  # import string for app defined above to support workers
+        port=args.port,
+        workers=args.workers,
+        reload=args.reload,
+    )

@@ -15,46 +15,14 @@ Please feel free to reach out to agent-feedback@databricks.com if you have any f
 
 ### In this repo
 
-The templates in this repo have:
+Please refer to each individual template's README.md for more details. The templates in this repo all have:
 
-- MLflow tracing built in
-- An async server to query your agent, configured to route requests to `/invocations` to your agent implementation
-- Decorators to easily denote stream and invoke methods
+- Built-in MLflow tracing
+- An async server to query your agent, configured to route requests from `/invocations` to your agent implementation
+- Decorators to easily specify stream and invoke methods
 
-#### custom-schema-agent
+Click on each of the links below to see more details about each agent template:
 
-- Meant for hosting agents that have arbitrary schemas
-- UI helpers coming soon to host a custom UI on the same app
-
-#### known-schema-agent
-
-- Meant for deploying Responses API compatible agents
-- Has a built in UI dependent on streamed `response.output_item.done` events. Read more in the [MLflow docs for ResponsesAgent](https://mlflow.org/docs/latest/genai/serving/responses-agent#streaming-agent-output).
-
-### Querying your deployed agent
-
-#### Via UI:
-
-If you're deploying a Responses API agent with the known-schema-agent, you can use the built in UI to query your agent via visiting your app URL.
-
-UI helpers for the custom-schema-agent are coming soon.
-
-#### Via API:
-
-You can generate an OAuth token and query your Databricks App via API:
-
-```
-databricks auth login --host <https://host.databricks.com>
-databricks auth token
-```
-
-```
-curl --request POST \
-  --url <app-url.databricksapps.com>/invocations \
-  --header 'Authorization: Bearer <oauth token>' \
-  --header 'content-type: application/json' \
-  --data '{
- "input": [{"role": "user", "content": "hi"}],
- "stream": true
-}'
-```
+- [responses-api-agent](/responses-api-agent/README.md)
+- [chat-completions-api-agent](/chat-completions-api-agent/README.md)
+- [non-conversational-agent](/non-conversational-agent/README.md)
