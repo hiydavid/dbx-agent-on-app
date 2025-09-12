@@ -1,10 +1,12 @@
 # Agents on Apps
 
-The Databricks Agent Platform team is prototyping the development experience of deploying Agents on Databricks Apps instead of Databricks Model Serving.
+⚠️ The contents of this repo are experimental and subject to change without warning.
+
+To address feedback from customers, especially those with a SWE background who prefer to develop agents using familiar tooling like git for versioning and IDEs for development, the agent framework team at Databricks is prototyping the development experience of deploying Agents on Databricks Apps instead of Databricks Model Serving.
 
 By deploying agents on Databricks Apps instead of Model Serving, you can:
 
-- Validate authentication with tools, endpoints, genie spaces etc. in seconds instead of having to wait ~15 min for an endpoint to deploy
+- Validate authentication with tools, endpoints, genie spaces etc. in seconds
 - Use [MLflow git-based logged models](https://docs.databricks.com/aws/en/mlflow3/genai/prompt-version-mgmt/version-tracking/track-application-versions-with-mlflow) and real time tracing
 - Use AI coding tools like Claude Code or Cursor to develop your agent locally
 - Tweak behaviors within the async server to handle agent invocation exactly how you desire
