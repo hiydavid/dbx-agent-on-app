@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from mlflow.pyfunc import ResponsesAgent
 from mlflow.tracing.trace_manager import InMemoryTraceManager
+from mlflow.types.agent import ChatAgentChunk, ChatAgentRequest, ChatAgentResponse
 from mlflow.types.llm import ChatCompletionChunk, ChatCompletionResponse, ChatMessage
 from mlflow.types.responses import (
     ResponsesAgentRequest,
@@ -24,7 +25,7 @@ from pydantic import BaseModel
 
 _invoke_function: Optional[Callable] = None
 _stream_function: Optional[Callable] = None
-AgentType = Literal["agent/v1/responses", "agent/v1/chat"]
+AgentType = Literal["agent/v1/responses", "agent/v1/chat", "agent/v2/chat"]
 
 
 def invoke() -> Callable:
@@ -87,7 +88,8 @@ class AgentValidator:
         elif self.agent_type == "agent/v1/chat":
             for msg in data.get("messages", []):
                 self.validate_dataclass(ChatMessage, msg)
-        # TODO: add additional validation for different agent types
+        elif self.agent_type == "agent/v2/chat":
+            self.validate_pydantic(ChatAgentRequest, data)
 
     def validate_invoke_response(self, result: Any) -> None:
         """Validate the invoke response"""
@@ -95,7 +97,8 @@ class AgentValidator:
             self.validate_pydantic(ResponsesAgentResponse, result)
         elif self.agent_type == "agent/v1/chat":
             self.validate_dataclass(ChatCompletionResponse, result)
-        # TODO: add additional validation for different agent types
+        elif self.agent_type == "agent/v2/chat":
+            self.validate_pydantic(ChatAgentResponse, result)
 
     def validate_stream_response(self, result: Any) -> None:
         """Validate a stream event for agent/v1/responses (ResponsesAgent)"""
@@ -103,7 +106,8 @@ class AgentValidator:
             self.validate_pydantic(ResponsesAgentStreamEvent, result)
         elif self.agent_type == "agent/v1/chat":
             self.validate_dataclass(ChatCompletionChunk, result)
-        # TODO: add additional validation for different agent types
+        elif self.agent_type == "agent/v2/chat":
+            self.validate_dataclass(ChatAgentChunk, result)
 
     def validate_and_convert_result(self, result: Any, stream: bool = False) -> dict:
         """Validate and convert the result into a dictionary if necessary"""
@@ -130,7 +134,6 @@ class AgentServer:
         self.validator = AgentValidator(agent_type)
         self.app = FastAPI(title="Agent Server", version="0.0.1")
 
-        # Add CORS middleware to allow frontend connections
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
@@ -145,16 +148,13 @@ class AgentServer:
 
     def _setup_static_files(self) -> None:
         """Setup static file serving for the UI"""
-        # Get the path to the UI build folder relative to the server location
         ui_dist_path = Path(__file__).parent.parent.parent / "ui/static"
 
         if ui_dist_path.exists():
-            # Mount the static assets
             self.app.mount(
                 "/assets", StaticFiles(directory=str(ui_dist_path / "assets")), name="assets"
             )
 
-            # Serve the main index.html at root and catch-all routes for React Router
             from fastapi.responses import FileResponse
 
             @self.app.get("/")
@@ -186,7 +186,6 @@ class AgentServer:
                     status_code=400, detail=f"Invalid JSON in request body: {str(e)}"
                 )
 
-            # Log incoming request
             self.logger.info(
                 "Request received",
                 extra={
@@ -196,14 +195,11 @@ class AgentServer:
                 },
             )
 
-            # Check if streaming is requested
             is_streaming = data.get("stream", False)
             return_trace = data.get("databricks_options", {}).get("return_trace", False)
 
-            # Remove stream parameter from data before validation
             request_data = {k: v for k, v in data.items() if k != "stream"}
 
-            # Validate request parameters based on agent type
             try:
                 self.validator.validate_request(request_data)
             except ValueError as e:
@@ -226,14 +222,12 @@ class AgentServer:
         self, data: dict, start_time: float, return_trace: bool
     ) -> dict:
         """Handle non-streaming invoke requests"""
-        # Use the single invoke function
         if _invoke_function is None:
             raise HTTPException(status_code=500, detail="No invoke function registered")
 
         func = _invoke_function
         func_name = func.__name__
 
-        # Check if function is async or sync and execute with tracing
         try:
             with mlflow.start_span(name=f"{func_name}_invoke") as span:
                 span.set_inputs(data)
@@ -245,13 +239,14 @@ class AgentServer:
                 result = self.validator.validate_and_convert_result(result)
                 duration = round(time.time() - start_time, 2)
                 span.set_attribute("duration_ms", duration)
+                if self.agent_type == "agent/v1/responses":
+                    span.set_attribute("mlflow.message.format", "openai")
                 span.set_outputs(result)
 
                 if return_trace:
                     databricks_output = self._get_databricks_output(span.trace_id)
                     result["databricks_output"] = databricks_output
 
-            # Log response details
             self.logger.info(
                 "Response sent",
                 extra={
@@ -287,14 +282,12 @@ class AgentServer:
         self, data: dict, start_time: float, return_trace: bool
     ) -> StreamingResponse:
         """Handle streaming requests"""
-        # Use the single stream function
         if _stream_function is None:
             raise HTTPException(status_code=500, detail="No stream function registered")
 
         func = _stream_function
         func_name = func.__name__
 
-        # Collect all chunks for tracing
         all_chunks = []
 
         async def generate():
@@ -313,12 +306,26 @@ class AgentServer:
                             all_chunks.append(chunk)
                             yield f"data: {json.dumps(chunk)}\n\n"
 
-                    # Log the full streaming session
                     duration = round(time.time() - start_time, 2)
                     span.set_attribute("duration_ms", duration)
                     if self.agent_type == "agent/v1/responses":
+                        span.set_attribute("mlflow.message.format", "openai")
                         span.set_outputs(ResponsesAgent.responses_agent_output_reducer(all_chunks))
-                    # TODO: add additional streaming output reducers for different agent types
+                    elif self.agent_type == "agent/v1/chat":
+
+                        def _extract_content(chunk: ChatCompletionChunk | dict) -> str:
+                            if isinstance(chunk, dict):
+                                return (
+                                    chunk.get("choices", [])[0].get("delta", {}).get("content", "")
+                                )
+                            if not chunk.choices:
+                                return ""
+                            return chunk.choices[0].delta.content or ""
+
+                        content = "".join(map(_extract_content, all_chunks))
+                        span.set_outputs({"choices": [{"role": "assistant", "content": content}]})
+                    elif self.agent_type == "agent/v2/chat":
+                        span.set_outputs({"messages": [chunk["delta"] for chunk in all_chunks]})
                     else:
                         span.set_outputs(all_chunks)
 
@@ -326,10 +333,8 @@ class AgentServer:
                         databricks_output = self._get_databricks_output(span.trace_id)
                         yield f"data: {json.dumps({'databricks_output': databricks_output})}\n\n"
 
-                    # Send [DONE] signal
                     yield "data: [DONE]\n\n"
 
-                # Log streaming response completion
                 self.logger.info(
                     "Streaming response completed",
                     extra={
