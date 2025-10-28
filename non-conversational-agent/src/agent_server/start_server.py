@@ -7,7 +7,7 @@ from agent_server.server import AgentServer, parse_server_args, setup_mlflow
 # Load environment variables from .env.local if it exists
 load_dotenv(dotenv_path=".env.local", override=True)
 
-agent_server = AgentServer("agent/v1/responses")
+agent_server = AgentServer()
 # define the app as a module level variable to enable multiple workers
 app = agent_server.app  # noqa: F841
 

@@ -22,9 +22,9 @@ Install the latest versions of `uv` (python package manager) and `nvm` (node ver
 Create an MLflow experiment in Databricks. Refer to the [MLflow experiments documentation](https://docs.databricks.com/aws/en/mlflow/experiments#create-experiment-from-the-workspace) for more info.
 
 ```bash
-export MLFLOW_EXPERIMENT_ID="1234567890" # fill in with your experiment ID
-export MLFLOW_TRACKING_URI="databricks"
-export MLFLOW_REGISTRY_URI="databricks-uc"
+cp .env.example .env.local
+# Edit .env.local and fill in your experiment ID
+# The .env.local file will be automatically loaded when starting the server
 ```
 
 ### Set up local authentication to Databricks
@@ -37,8 +37,8 @@ In order to access Databricks resources from your local machine while developing
 
   ```bash
   databricks configure
-  # Set the configuration profile
-  export DATABRICKS_CONFIG_PROFILE="DEFAULT"
+  # Add the configuration profile to your .env.local file
+  # DATABRICKS_CONFIG_PROFILE="DEFAULT"
   ```
 
 - **Use a personal access token (PAT)**
@@ -46,8 +46,9 @@ In order to access Databricks resources from your local machine while developing
   Refer to the [PAT documentation](https://docs.databricks.com/aws/en/dev-tools/auth/pat#databricks-personal-access-tokens-for-workspace-users) for more info.
 
   ```bash
-  export DATABRICKS_HOST="https://host.databricks.com"
-  export DATABRICKS_TOKEN="dapi_token"
+  # Add these to your .env.local file
+  # DATABRICKS_HOST="https://host.databricks.com"
+  # DATABRICKS_TOKEN="dapi_token"
   ```
 
 ### Modifying the UI
@@ -58,7 +59,7 @@ To run the UI locally while changing it to see live changes, simultaneously run 
 
 ```bash
 (cd ui && npm run dev)
-uv run agent-server
+uv run start-server
 ```
 
 Common changes to make:
@@ -72,15 +73,15 @@ Common changes to make:
 
 `agent.py` currently contains a Responses API agent. Please modify this file to create your custom agent. In order to work with the agent server provided, inside of `agent.py`, we require you to:
 
-- Call `create_server()` in order to initialize the server.
+- Create an `AgentServer` instance in order to initialize the server.
 
   - If your agent matches one of `ChatCompletions`, `ChatAgent` or `Responses` API, you can use the server's built-in validators by initializing the server with the following task types:
-    - `ChatCompletions`: `create_server("agent/v1/chat")`
-    - `ChatAgent`: `create_server("agent/v2/chat")`
-    - **`Responses`: `create_server("agent/v1/responses")`**
+    - `ChatCompletions`: `AgentServer("agent/v1/chat")`
+    - `ChatAgent`: `AgentServer("agent/v2/chat")`
+    - **`Responses`: `AgentServer("agent/v1/responses")`**
       - This specific example follows the Responses API, matching up with ResponsesAgent from MLflow.
 
-- Create an app module that is importable via some import path like `agent_server.agent:app`. This is used if your FastAPI server has multiple workers.
+- Create an app module that is importable via some import path like `agent_server.start_server:app`. This is used if your FastAPI server has multiple workers.
 - Use `parse_server_args()` to parse the server arguments.
 - Decorate your non-streaming method with `@invoke()` and your streaming method with `@stream()`.
   - Neither is required, but in order for your agent to be served, at least one decorator must be used.
@@ -90,27 +91,46 @@ Common changes to make:
 
 Very minimal example:
 
+`agent.py`:
+
 ```python
-from agent_server.utils import setup_mlflow
-from agent_server.server import create_server, invoke, stream
+from agent_server.server import invoke, stream
 
 @invoke()
 async def non_streaming(request: dict) -> dict:
-   return dict
+   return request
 
 @stream()
 async def streaming(request: dict) -> AsyncGenerator[dict, None]:
-   yield dict
+   yield request
+```
+
+`start_server.py`:
+
+```python
+from dotenv import load_dotenv
+
+# need to import the agent to register the functions with the server
+import agent_server.agent  # noqa: F401
+from agent_server.server import AgentServer, parse_server_args, setup_mlflow
+
+# Load environment variables from .env.local if it exists
+load_dotenv(dotenv_path=".env.local", override=True)
+
+agent_server = AgentServer("agent/v1/responses")
+# define the app as a module level variable to enable multiple workers
+app = agent_server.app  # noqa: F841
+
+args = parse_server_args()
+
+setup_mlflow()
+print(f"Running server on port {args.port} with {args.workers} workers and reload: {args.reload}")
 
 
-agent_server = create_server("agent/v1/responses")
-app = agent_server.app
-
-def main(): # called in the pyproject.toml `agent-server` script
-    args = parse_server_args()
-    setup_mlflow()
+def main():
+    # to support multiple workers, import the app defined above as a string
     agent_server.run(
-        "agent_server.agent:app",
+        app_import_string="agent_server.start_server:app",
         port=args.port,
         workers=args.workers,
         reload=args.reload,
@@ -127,14 +147,14 @@ Common changes to make:
 
 ### Modifying the server
 
-You can modify the server to your liking. Refer to the [server.py](src/agent_server/server.py) file for more info. Run the `agent-server` script to start the server locally:
+You can modify the server to your liking. Refer to the [server.py](src/agent_server/server.py) file for more info. Run the `start-server` script to start the server locally:
 
 ```bash
-uv run agent-server
-uv run agent-server --port 8001
-uv run agent-server --workers 4
+uv run start-server
+uv run start-server --port 8001
+uv run start-server --workers 4
 # To hot-reload the server on code changes, you can use the --reload command. Note that this doesn't work with multiple workers.
-uv run agent-server --reload
+uv run start-server --reload
 ```
 
 ### Testing out your local agent
@@ -143,7 +163,7 @@ Build the UI and start up the agent server locally:
 
 ```bash
 (cd ui && npm run build) # build the UI to be served statically
-uv run agent-server --reload
+uv run start-server --reload
 ```
 
 Now you can either query your agent via the built in UI (served by default at http://localhost:8000) or via REST API request:
@@ -190,7 +210,7 @@ After it completes, open the MLflow UI link for your experiment to inspect resul
 
    For resources that are not supported yet, refer to the [Agent Framework authentication documentation](https://docs.databricks.com/aws/en/generative-ai/agent-framework/deploy-agent#automatic-authentication-passthrough) for the correct permission level to grant to your app SP. MLflow experiments, UC connections, UC functions, and vector search indexes will be added to the UI soon.
 
-   **On-behalf-of (OBO) User Authentication**: Use `get_obo_workspace_client()` from `agent_server.utils` to authenticate as the requesting user instead of the app service principal. Refer to the [OBO authentication documentation](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/auth?language=Streamlit#retrieve-user-authorization-credentials) for more info.
+   **On-behalf-of (OBO) User Authentication**: Use `get_obo_workspace_client()` from `agent_server.server` to authenticate as the requesting user instead of the app service principal. Refer to the [OBO authentication documentation](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/auth?language=Streamlit#retrieve-user-authorization-credentials) for more info.
 
 2. **Set the value of `MLFLOW_EXPERIMENT_ID` in `app.yaml`**
 
