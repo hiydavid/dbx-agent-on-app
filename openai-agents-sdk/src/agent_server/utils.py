@@ -1,17 +1,12 @@
-import os
 from typing import Optional
 
 from databricks.sdk import WorkspaceClient
 from httpx import AsyncClient, Auth, Request
+from mlflow.genai.agent_server import get_request_headers
 from openai import AsyncOpenAI
 
 
 def get_databricks_host_from_env() -> Optional[str]:
-    host = os.getenv("DATABRICKS_HOST")
-    if host.startswith("https://"):
-        return host
-    elif host is not None:
-        return f"https://{host}"
     try:
         w = WorkspaceClient()
         return w.config.host
@@ -40,3 +35,8 @@ def get_async_openai_client(workspace_client: WorkspaceClient) -> AsyncOpenAI:
         api_key="no-token",  # Passing in a placeholder to pass validations, this will not be used
         http_client=_get_async_http_client(workspace_client),
     )
+
+
+def get_user_workspace_client() -> WorkspaceClient:
+    token = get_request_headers().get("x-forwarded-access-token")
+    return WorkspaceClient(token=token, auth_type="pat")
