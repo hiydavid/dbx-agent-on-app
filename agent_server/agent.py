@@ -2,7 +2,11 @@ from typing import AsyncGenerator
 
 import mlflow
 from agents import Agent, Runner, set_default_openai_api, set_default_openai_client
-from agents.mcp import MCPServerStdio, MCPServerStreamableHttp, MCPServerStreamableHttpParams
+from agents.mcp import (
+    MCPServerStdio,
+    MCPServerStreamableHttp,
+    MCPServerStreamableHttpParams,
+)
 from agents.tracing import set_trace_processors
 from databricks.sdk import WorkspaceClient
 from mlflow.genai.agent_server import invoke, stream
@@ -55,7 +59,9 @@ async def invoke(request: ResponsesAgentRequest) -> ResponsesAgentResponse:
         agent = create_coding_agent(mcp_server)
         messages = [i.model_dump() for i in request.input]
         result = await Runner.run(agent, messages)
-        return ResponsesAgentResponse(output=[item.to_input_item() for item in result.new_items])
+        return ResponsesAgentResponse(
+            output=[item.to_input_item() for item in result.new_items]
+        )
 
 
 @stream()

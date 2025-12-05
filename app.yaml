@@ -2,6 +2,8 @@ command: ["/bin/bash", "./scripts/start-app.sh"]
 # databricks apps listen by default on port 8000
 
 env:
+  - name: MLFLOW_EXPERIMENT_ID
+    value: "4256846012512732"
   - name: MLFLOW_TRACKING_URI
     value: "databricks"
   - name: MLFLOW_REGISTRY_URI
