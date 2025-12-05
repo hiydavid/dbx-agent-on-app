@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Databricks Responses API agent template that integrates the OpenAI Agents SDK with MLflow's AgentServer. The agent uses MCP (Model Context Protocol) to connect to Unity Catalog functions (specifically `system.ai.python_exec` for code execution).
+This is a Databricks Responses API agent template that integrates the OpenAI Agents SDK with MLflow's AgentServer. The agent uses MCP (Model Context Protocol) to connect to multiple Databricks MCP servers, including UC functions and external MCPs registered in Unity Catalog.
 
 ## Development Commands
 
@@ -64,6 +64,32 @@ curl -X POST http://localhost:8000/invocations \
 ### Environment Configuration
 - `.env.local`: Local development settings (created from `.env.example`)
 - `app.yaml`: Databricks Apps deployment config with environment variables
+
+### MCP Server Configuration
+
+The agent supports multiple MCP servers configured via the `MCP_SERVERS` environment variable.
+
+**Format:** `type:identifier,type:identifier,...`
+
+| Type | Identifier | URL Pattern |
+|------|------------|-------------|
+| `functions` | `catalog.schema` | `/api/2.0/mcp/functions/{catalog}/{schema}` |
+| `external` | `connection_name` | `/api/2.0/mcp/external/{connection_name}` |
+
+**Examples:**
+```bash
+# Single UC function MCP (default)
+MCP_SERVERS=functions:system.ai
+
+# UC functions + external MCP
+MCP_SERVERS=functions:system.ai,external:you-com-dhuang
+
+# Multiple MCPs
+MCP_SERVERS=functions:system.ai,functions:prod.billing,external:slack-mcp
+```
+
+- **Managed MCPs (functions)**: UC functions exposed as MCP tools
+- **External MCPs**: Third-party MCP servers registered as Unity Catalog connections
 
 ## Deployment to Databricks Apps
 

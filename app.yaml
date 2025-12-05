@@ -10,3 +10,7 @@ env:
     value: "databricks-uc"
   - name: API_PROXY
     value: "http://localhost:8000/invocations"
+  # MCP Servers: comma-separated list with type prefixes
+  # Format: type:identifier (functions:catalog.schema or external:connection_name)
+  - name: MCP_SERVERS
+    value: "functions:system.ai,external:you-com-dhuang"
