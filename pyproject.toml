@@ -14,6 +14,7 @@ dependencies = [
     "mlflow>=3.6.0",
     "openai-agents>=0.4.1",
     "dotenv",
+    "mcp==1.22.0",
 ]
 
 [build-system]
